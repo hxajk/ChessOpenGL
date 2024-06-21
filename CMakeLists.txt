@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.5)
 project(ChessOpenGL)
 
 if(WIN32)
-find_package(glfw3 REQUIRED PATHS "{CMAKE_SOURCE_DIR}/Deps/GLFW/Windows/")
+find_package(glfw3 REQUIRED PATHS "{CMAKE_SOURCE_DIR}/deps/GLFW/Windows/")
 elseif(UNIX)
 find_package(glfw3 REQUIRED PATHS "{CMAKE_SOURCE_DIR}/Deps/GLFW/Linux/")
 endif()
