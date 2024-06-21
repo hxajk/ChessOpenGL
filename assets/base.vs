@@ -1,11 +1,8 @@
 #version 330 core 
 
-layout (location = 0) in vec3 pData;
-layout (location = 1) in vec3 cData;
+layout (location = 0) in vec2 pData;
 
-out vec3 color;
 
 void main(){
-    gl_Position = vec4(pData,1);
-    color = cData;
+    gl_Position = vec4(pData,0,1);
 }

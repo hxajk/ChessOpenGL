@@ -19,11 +19,15 @@
 #include <fstream>
 #include <vector>
 
+
+int WIDTH = 1024 / 2;
+int HEIGHT = 1024 / 2;
+
 struct HelperFunctions 
 {
     std::string LoadShaderFile(const std::string& data){
         
-        std::string filepath = "D:/LearnCpp/assets/" + data;
+        std::string filepath = "D:/ChessOpenGL/assets/" + data;
 
         std::fstream file(filepath);  
 
@@ -78,13 +82,15 @@ class Triangle
     Triangle(){
 
         VertexData = {
-            -0.5,0.0,0.0,   0,0,1,
-            0.0,0.5,0.0,   0,1,0,
-            0.5,0.0,0.0,   1,0,0
+            -1,-1,
+            -1,1,
+            1,1,
+            1,-1 
         };
 
         IndexData = {
-            0,1,2
+            0,1,2,
+            2,3,0
         };
 
 
@@ -102,15 +108,15 @@ class Triangle
         glGenVertexArrays(1,&VertexArray);
         glBindVertexArray(VertexArray);
 
-        glVertexAttribPointer(0,3,GL_FLOAT,false,6 * sizeof(float), (void*)0);
+        glVertexAttribPointer(0,2,GL_FLOAT,false,2 * sizeof(float), (void*)0);
         glEnableVertexAttribArray(0);
-
-        glVertexAttribPointer(1,3,GL_FLOAT,false,6 * sizeof(float), (void*)12);
-        glEnableVertexAttribArray(1);
 
         HelperFunctions _func;
 
         ShaderID = _func.LoadShader("base.vs", "base.fs");
+
+        glUseProgram(ShaderID);
+        glUniform2f(glGetUniformLocation(ShaderID,"resolution"),WIDTH,HEIGHT);
 
         glBindVertexArray(0);
 
@@ -131,11 +137,17 @@ int main()
     
     if(!glfwInit())
         return -1;
+    
+    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
-    GLFWwindow* window = glfwCreateWindow(1000,1000,"ChessOpenGL", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(WIDTH,HEIGHT,"ChessOpenGL", NULL, NULL);
 
     glfwMakeContextCurrent(window);
-    glfwSwapInterval(1);
+
+     glfwSetWindowSizeCallback(window, [](GLFWwindow* window, int w, int h){
+      glViewport(0,0,w,h);
+      printf("%d - %d \n", w, h);
+    });
 
     if(!gladLoadGL())
         return -1;
