@@ -8,8 +8,25 @@ elseif(UNIX)
 find_package(glfw3 REQUIRED PATHS "${CMAKE_SOURCE_DIR}/deps/GLFW/Linux/")
 endif()
 
+option(DEBUG "Debug mode" ON)
+
+if(DEBUG)
+find_package(imgui PATHS "C:/Deps/ImGui/") 
+endif()
+
 find_package(glad REQUIRED PATHS "${CMAKE_SOURCE_DIR}deps/GLAD/")
 
-add_executable(ChessOpenGL ${CMAKE_SOURCE_DIR}/main.cpp)
+add_executable(run ${CMAKE_SOURCE_DIR}/main.cpp)
 
-target_link_libraries(ChessOpenGL glfw glad)
+target_link_libraries(run glfw glad)
+
+if(DEBUG)
+
+    add_custom_command(OUTPUT Debug...
+    COMMAND "./run.exe"
+    DEPENDS run)
+
+add_custom_target(Debug ALL
+    DEPENDS Debug...)
+
+endif()

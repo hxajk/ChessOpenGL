@@ -112,8 +112,6 @@ class Triangle
 
         ShaderID = _func.LoadShader("base.vs", "base.fs");
 
-        printf("%d %d %d %d \n", ShaderID, VertexArray, VertexBuffer, IndexBuffer);
-
         glBindVertexArray(0);
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0);
