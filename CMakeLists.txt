@@ -8,6 +8,8 @@ elseif(UNIX)
 find_package(glfw3 REQUIRED PATHS "{CMAKE_SOURCE_DIR}/Deps/GLFW/Linux/")
 endif()
 
+find_package(glad REQUIRED PATHS "{CMAKE_SOURCE_DIR}/deps/GLAD/")
+
 add_executable(ChessOpenGL ${CMAKE_SOURCE_DIR}/main.cpp)
 
 target_link_libraries(ChessOpenGL glfw)
