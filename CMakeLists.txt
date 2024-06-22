@@ -8,11 +8,13 @@ elseif(UNIX)
 find_package(glfw3 REQUIRED PATHS "${CMAKE_SOURCE_DIR}/dependencies/GLFW/Linux/")
 endif()
 
+message(${CMAKE_SOURCE_DIR})
 option(DEBUG "Debug mode" ON)
 
 if(DEBUG)
 find_package(imgui PATHS "C:/Deps/ImGui/") 
 endif()
+
 if(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/dependencies/glm)
     find_package(glm PATHS ${CMAKE_SOURCE_DIR}/dependencies/glm)
 else()
@@ -23,6 +25,7 @@ endif()
 
 find_package(glad REQUIRED PATHS "${CMAKE_SOURCE_DIR}/dependencies/GLAD/")
 
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/)
 
 add_executable(run ${CMAKE_SOURCE_DIR}/main.cpp)
 
