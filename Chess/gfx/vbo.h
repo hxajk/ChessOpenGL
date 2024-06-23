@@ -23,8 +23,6 @@ void vbo_bind(struct VBO self);
 
 void vbo_data(struct VBO self, void *data,  size_t size);
 
-
-
 #endif 
 
 #ifdef __cplusplus

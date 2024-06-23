@@ -5,17 +5,19 @@ extern "C" {
 #ifndef VAO_H
 #define VAO_H 
 
+/////////////INCLUDE HEADER////////////////////
 #include "Chess/gfx/gfx.h"
 #include "Chess/gfx/vbo.h"
 #include <Chess/util/util.h>
+//////////////////////////////////////////////
 
 struct VAO {
-    
     GLuint handle;
-
 };
 
 struct VAO vao_create();
+
+
 void vao_bind(struct VAO self);
 void vao_destroy(struct VAO self); 
 
