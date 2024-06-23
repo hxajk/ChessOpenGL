@@ -27,7 +27,13 @@ find_package(glad REQUIRED PATHS "${CMAKE_SOURCE_DIR}/dependencies/GLAD/")
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/)
 
-add_executable(run ${CMAKE_SOURCE_DIR}/main.cpp)
+set(SOURCES 
+${CMAKE_SOURCE_DIR}/main.cpp
+${CMAKE_SOURCE_DIR}/Chess/gfx/vao.c
+${CMAKE_SOURCE_DIR}/Chess/gfx/vbo.c
+)
+
+add_executable(run ${SOURCES})
 
 target_link_libraries(run glfw glad glm::glm)
 
