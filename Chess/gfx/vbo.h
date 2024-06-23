@@ -6,7 +6,6 @@ extern "C" {
 #define VBO_H
 
 #include <Chess/util/util.h>
-
 #include "Chess/gfx/gfx.h"
 
 struct VBO {

@@ -15,6 +15,8 @@ struct Shader shader_create(const char *vs_path, const char *fs_path);
 
 void shader_bind(struct Shader self);
 
+void shader_destroy(struct Shader self);
+
 #endif
 
 #ifdef __cplusplus

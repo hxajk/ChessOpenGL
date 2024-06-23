@@ -1,8 +1,16 @@
+/// @file shader.c
+
 #include "Chess/gfx/shader.h"
 #include "Chess/gfx/gfx.h"
 #include "gfx.h"
 
-
+/**
+ * @brief Compile shader function
+ * 
+ * @param path 
+ * @param type 
+ * @return GLint 
+ */
 
 static GLint _compile(const char* path, GLenum type)
 {
@@ -74,6 +82,14 @@ static GLint _compile(const char* path, GLenum type)
     return ShaderType;
 };
 
+/**
+ * @brief Initalize shader, attach and link program!
+ * 
+ * @param vs_path 
+ * @param fs_path 
+ * @return struct Shader 
+ */
+
 struct Shader shader_create(const char *vs_path, const char *fs_path)
 {
     struct Shader self = {
@@ -107,7 +123,26 @@ struct Shader shader_create(const char *vs_path, const char *fs_path)
     return self;
 };
 
+/**
+ * @brief Bind our shader
+ * 
+ * @param self 
+ */
+
 void shader_bind(struct Shader self)
 {
     glUseProgram(self.handle);
+};
+
+/**
+ * @brief Destroy our shader.
+ * 
+ * @param self 
+ */
+
+void shader_destroy(struct Shader self)
+{
+    glDeleteProgram(self.handle);
+    glDeleteShader(self.vs_handle);
+    glDeleteShader(self.fs_handle);
 };
