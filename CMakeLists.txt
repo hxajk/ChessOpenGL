@@ -31,6 +31,7 @@ set(SOURCES
 ${CMAKE_SOURCE_DIR}/main.cpp
 ${CMAKE_SOURCE_DIR}/Chess/gfx/vao.c
 ${CMAKE_SOURCE_DIR}/Chess/gfx/vbo.c
+${CMAKE_SOURCE_DIR}/Chess/gfx/shader.c
 )
 
 add_executable(run ${SOURCES})
