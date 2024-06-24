@@ -13,12 +13,13 @@ struct Window {
     float x,y;
 };
 
-struct Window window_init(int width, int height, const  char* title);
+struct Window window_init(int x, int y, const  char* title);
+
+struct Window window_get();
 
 void window_render(struct Window self);
 
 void window_destroy(struct Window self);
-
 #endif
 
 #ifdef __cplusplus

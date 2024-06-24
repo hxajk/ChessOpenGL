@@ -1,19 +1,27 @@
 #include "Chess/gfx/window.h"
+#include <GLFW/glfw3.h>
 #include <stdio.h>
 
+static struct Window self;
 
-struct Window window_init(int width, int height, const char* title)
+
+static void key_callback(GLFWwindow *handle, int key, int scancode, int action, int mods)
 {
-    struct Window self = {
-        .x = width,
-        .y = height,
+    if(key == GLFW_KEY_SPACE)
+    {
+        glfwSetWindowShouldClose(self.handle, true);
     };
+};
+
+struct Window window_init(int x, int y, const char* title)
+{
+    self.x = x; self.y = y;
 
     #if _DEBUG
     glfwWindowHint(GLFW_CONTEXT_DEBUG, true);
     #endif
 
-    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+    glfwWindowHint(GLFW_RESIZABLE, false);
 
     self.handle = glfwCreateWindow(self.x, self.y, "Chess", NULL, NULL);
 
@@ -26,7 +34,7 @@ struct Window window_init(int width, int height, const char* title)
 
     glfwMakeContextCurrent(self.handle);
 
-    // TODO: Events call here 
+    glfwSetKeyCallback(self.handle, key_callback);
 
     if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
         printf("error initializing GLAD\n");
@@ -39,13 +47,18 @@ struct Window window_init(int width, int height, const char* title)
     return self;
 };
 
-void window_render(struct Window self)
+struct Window window_get()
 {
     if(self.handle == NULL)
     {
-        printf("Window handle cannot be nullptr\n");
+        printf("error: window handle cannot be a nullptr!\n");
         assert(false);
     };
+    return self;
+};
+
+void window_render(struct Window self)
+{
     glfwSwapBuffers(self.handle);
     glfwPollEvents();
 };
