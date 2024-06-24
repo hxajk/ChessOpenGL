@@ -35,7 +35,7 @@ ${CMAKE_SOURCE_DIR}/main.cpp
 ${CMAKE_SOURCE_DIR}/Chess/gfx/vao.c
 ${CMAKE_SOURCE_DIR}/Chess/gfx/vbo.c
 ${CMAKE_SOURCE_DIR}/Chess/gfx/shader.c
-
+${CMAKE_SOURCE_DIR}/Chess/gfx/window.c
 # core folder  
 
 ${CMAKE_SOURCE_DIR}/Chess/core/board.cpp

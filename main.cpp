@@ -12,17 +12,12 @@
 */
 
 ///////////////////////////////////////////////////////////////
-
-#include "Chess/core/board.h"
 #include "Chess/gfx/shader.h"
 #include "Chess/gfx/vao.h"
 #include "Chess/gfx/vbo.h"
+#include "Chess/gfx/window.h"
 
-#include <string>
-#include <cstdio>
-#define INCLUDE_GLFW_NONE
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#include "Chess/core/board.h"
 /////////////////////////////////////////////////////////////
 
 
@@ -39,43 +34,15 @@ void run(int width, int height, std::string title)
         return;
     }
 
-    #if _DEBUG
-    glfwWindowHint(GLFW_CONTEXT_DEBUG, true);
-    #endif
-
-    GLFWwindow* window = glfwCreateWindow(width, height, title.c_str(), NULL, NULL);
-
-    if(!window)
-    {
-        glfwTerminate();
-        return;
-    };
-
-    glfwMakeContextCurrent(window);
-
-    glfwSwapInterval(1);
-
-    glfwSetWindowSizeCallback(window, [](GLFWwindow* window, int w, int h){
-        glViewport(0, 0, w, h);
-    });
-
-    glfwSetKeyCallback(window, [](GLFWwindow* window, int key, int scancode, int action, int mods){
-        if(key == GLFW_KEY_SPACE)  glfwSetWindowShouldClose(window, GLFW_TRUE); 
-    });
-
-    if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-    {
-        return;
-    };
+    Window window = window_init(width, height, title.c_str()); 
 
     Board board = board_init();
 
 
-    while (!glfwWindowShouldClose(window)) {
+    while (!glfwWindowShouldClose(window.handle)) {
 
         board_render(board);
-        glfwSwapBuffers(window);
-        glfwPollEvents();
+        window_render(window);
     }
 
 };

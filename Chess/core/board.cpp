@@ -4,6 +4,8 @@
 Test whether or not our ortho working perfectly
 */
 
+#include <glm/ext/matrix_clip_space.hpp>
+#include <glm/ext/matrix_float4x4.hpp>
 #include  <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -11,7 +13,7 @@ struct Board board_init(){
 
     struct Board self;
 
-    self.shader_vertex = shader_create("resources/base.vs", "resources/base.fs");
+    /* self.shader_vertex = shader_create("resources/base.vs", "resources/base.fs"); */
 
     self.buffer_data = {
         -0.5,0.0,
@@ -41,7 +43,8 @@ struct Board board_init(){
 };
 
 void board_render(struct Board self){
-    shader_bind(self.shader_vertex);
+   /*  shader_bind(self.shader_vertex); */
+
     vao_bind(self.array_vertex);
     vbo_bind(self.index_vertex);
     glDrawElements(GL_TRIANGLES, self.index_data.size(), GL_UNSIGNED_INT, 0 );
