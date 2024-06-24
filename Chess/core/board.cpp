@@ -4,26 +4,31 @@
 Test whether or not our ortho working perfectly
 */
 
-#include <glm/ext/matrix_clip_space.hpp>
-#include <glm/ext/matrix_float4x4.hpp>
-#include  <glm/gtc/type_ptr.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-
 struct Board board_init(){
 
     struct Board self;
 
-    /* self.shader_vertex = shader_create("resources/base.vs", "resources/base.fs"); */
+    // TODO: Try to fix this also !
+
+    // My path before: ./build
+
+
+    // My path after: ../build
+
+
+    self.shader_vertex = shader_create("../resources/base.vs", "../resources/board.fs");
 
     self.buffer_data = {
-        -0.5,0.0,
-        0.0,0.5,
-        0.5,0.0,
+            -1,-1,
+            -1,1,
+            1,1,
+            1,-1 
     };
-    
+
     self.index_data = {
-        0,1,2
+        0,1,2,2,3,0
     };
+
 
     self.buffer_vertex = vbo_create(GL_ARRAY_BUFFER, false);
     self.array_vertex = vao_create();
@@ -38,13 +43,14 @@ struct Board board_init(){
     vao_bind(self.array_vertex);
     vao_attrib(self.array_vertex, self.buffer_vertex, 0, 2, GL_FLOAT, 2 * sizeof(float), 0);
 
+    shader_bind(self.shader_vertex);
+
+    glUniform2f(glGetUniformLocation(self.shader_vertex.handle,"resolution"),window_get().x,window_get().y);
 
     return self;
 };
-
 void board_render(struct Board self){
-   /*  shader_bind(self.shader_vertex); */
-
+    shader_bind(self.shader_vertex);
     vao_bind(self.array_vertex);
     vbo_bind(self.index_vertex);
     glDrawElements(GL_TRIANGLES, self.index_data.size(), GL_UNSIGNED_INT, 0 );

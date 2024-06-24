@@ -2,6 +2,7 @@
 #include <Chess/gfx/vao.h>
 #include <Chess/gfx/vbo.h>
 #include <Chess/gfx/shader.h>
+#include <Chess/gfx/window.h>
 
 #ifndef BOARD_H
 #define BOARD_H
