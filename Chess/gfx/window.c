@@ -1,9 +1,20 @@
+/// @file window.c
+
 #include "Chess/gfx/window.h"
 #include <GLFW/glfw3.h>
 #include <stdio.h>
 
 static struct Window self;
 
+/**
+ * @brief Handle, and update key related per time.
+ * 
+ * @param handle 
+ * @param key 
+ * @param scancode 
+ * @param action 
+ * @param mods 
+ */
 
 static void key_callback(GLFWwindow *handle, int key, int scancode, int action, int mods)
 {
@@ -12,6 +23,16 @@ static void key_callback(GLFWwindow *handle, int key, int scancode, int action, 
         glfwSetWindowShouldClose(self.handle, true);
     };
 };
+
+
+/**
+ * @brief Initalize our window.
+ * 
+ * @param x 
+ * @param y 
+ * @param title 
+ * @return struct Window 
+ */
 
 struct Window window_init(int x, int y, const char* title)
 {
@@ -47,6 +68,12 @@ struct Window window_init(int x, int y, const char* title)
     return self;
 };
 
+/**
+ * @brief Get the window handle through a struct.
+ * 
+ * @return struct Window 
+ */
+
 struct Window window_get()
 {
     if(self.handle == NULL)
@@ -57,11 +84,24 @@ struct Window window_get()
     return self;
 };
 
+
+/**
+ * @brief Update the window handle per time.
+ * 
+ * @param self 
+ */
+
 void window_render(struct Window self)
 {
     glfwSwapBuffers(self.handle);
     glfwPollEvents();
 };
+
+/**
+ * @brief Destroy our window.
+ * 
+ * @param self 
+ */
 
 void window_destroy(struct Window self)
 {
