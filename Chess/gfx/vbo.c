@@ -13,14 +13,14 @@
 
 struct VBO vbo_create(GLint type, bool dynamic)
 {
-    struct VBO _vbo = {
+    struct VBO self = {
         .type = type,
         .dynamic = dynamic
     };
 
-    glGenBuffers(1,&_vbo.handle);
+    glGenBuffers(1,&self.handle);
 
-    return _vbo;
+    return self;
 };
 
 /**

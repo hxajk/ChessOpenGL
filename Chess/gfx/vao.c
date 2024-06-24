@@ -6,15 +6,15 @@
 
 
 /**
- * @brief 
+ * @brief Initalize our VAO.
  * 
  * @return struct VAO 
  */
 
 struct VAO vao_create() {
-  struct VAO _vao;
-  glCreateVertexArrays(1, &_vao.handle);
-  return _vao;
+  struct VAO self;
+  glCreateVertexArrays(1, &self.handle);
+  return self;
 };
 
 /**

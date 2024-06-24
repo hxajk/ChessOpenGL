@@ -5,11 +5,9 @@ extern "C" {
 #ifndef VAO_H
 #define VAO_H 
 
-/////////////INCLUDE HEADER////////////////////
 #include "Chess/gfx/gfx.h"
 #include "Chess/gfx/vbo.h"
 #include <Chess/util/util.h>
-//////////////////////////////////////////////
 
 struct VAO {
     GLuint handle;
