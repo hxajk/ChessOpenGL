@@ -13,13 +13,13 @@
 
 ///////////////////////////////////////////////////////////////
 
+#include "Chess/core/board.h"
 #include "Chess/gfx/shader.h"
 #include "Chess/gfx/vao.h"
 #include "Chess/gfx/vbo.h"
 
 #include <string>
 #include <cstdio>
-#include <vector>
 #define INCLUDE_GLFW_NONE
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -28,7 +28,7 @@
 
 void run(int width, int height, std::string title);
 
-int main()
+int main(int argc, char *argv[])
 {
     run(1024 / 2,1024 / 2,"Chess");
 };
@@ -68,48 +68,12 @@ void run(int width, int height, std::string title)
         return;
     };
 
-    Shader shader = shader_create("D:/ChessOpenGL/resources/base.vs", "D:/ChessOpenGL/resources/base.fs");
+    Board board = board_init();
 
-    std::vector<float> v = {
-        1,1,
-        1,-1,
-        -1,-1,
-        -1,1
-    };
-    std::vector<GLuint> i = {
-        0,1,2,
-        2,3,0,
-    };
-    
-   struct VBO vbo = vbo_create(GL_ARRAY_BUFFER, false);
-
-   struct VBO ibo = vbo_create(GL_ELEMENT_ARRAY_BUFFER, false);
-
-   vbo_bind(vbo);
-
-   vbo_bind(ibo);
-
-   vbo_data(vbo, v.data(), v.size() * sizeof(float));
-
-   vbo_data(ibo, i.data(), i.size() * 4);
-
-    VAO vao = vao_create();
-
-    vao_bind(vao);
-
-    vao_attrib(vao, vbo, 0, 2, GL_FLOAT, 2 * sizeof(float), 0);
-
-    shader_bind(shader);
-
-    glUniform2f(glGetUniformLocation(shader.handle, "resolution"), width, height);
 
     while (!glfwWindowShouldClose(window)) {
 
-        shader_bind(shader);
-        vbo_bind(vbo);
-        vbo_bind(ibo);
-        vao_bind(vao);
-        glDrawElements(GL_TRIANGLES,i.size(),GL_UNSIGNED_INT,0);
+        board_render(board);
         glfwSwapBuffers(window);
         glfwPollEvents();
     }

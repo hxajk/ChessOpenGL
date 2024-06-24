@@ -29,9 +29,17 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/)
 
 set(SOURCES 
 ${CMAKE_SOURCE_DIR}/main.cpp
+
+
+ # gfx folder 
 ${CMAKE_SOURCE_DIR}/Chess/gfx/vao.c
 ${CMAKE_SOURCE_DIR}/Chess/gfx/vbo.c
 ${CMAKE_SOURCE_DIR}/Chess/gfx/shader.c
+
+# core folder  
+
+${CMAKE_SOURCE_DIR}/Chess/core/board.cpp
+
 )
 
 add_executable(run ${SOURCES})
