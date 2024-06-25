@@ -3,6 +3,12 @@
 #include <Chess/gfx/texture.h>
 #include "Chess/gfx/gfx.h"
 
+/**
+ * @brief Initalize our texture 
+ * 
+ * @param path 
+ * @return struct Texture 
+ */
 
 struct Texture texture_create(const char* path)
 {
@@ -35,10 +41,22 @@ struct Texture texture_create(const char* path)
     return self;
 };
 
+/**
+ * @brief Bind our texture
+ * 
+ * @param self 
+ */
+
 void texture_bind(struct Texture self)
 {
     glBindTexture(GL_TEXTURE_2D, self.handle);
 };
+
+/**
+ * @brief Destroy our texture
+ * 
+ * @param self 
+ */
 
 void texture_destroy(struct Texture self)
 {
