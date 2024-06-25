@@ -16,13 +16,13 @@ struct Board board_init(){
     // My path after: ../build
 
 
-    self.shader_vertex = shader_create("../resources/base.vs", "../resources/board.fs");
+    self.shader_vertex = shader_create("../resources/shaders/base.vs", "../resources/shaders/board.fs");
 
     self.buffer_data = {
-            -1,-1,
-            -1,1,
-            1,1,
-            1,-1 
+            -1,-1,  
+            -1,1,  
+            1,1,   
+            1,-1,   
     };
 
     self.index_data = {

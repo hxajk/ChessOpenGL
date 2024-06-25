@@ -27,7 +27,10 @@ if(DEBUG)
     find_package(imgui PATHS "C:/Deps/ImGui/")
 endif()
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/)
+include_directories(
+    ${CMAKE_CURRENT_SOURCE_DIR}/ 
+    ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/stb_image
+)
 
 set(SOURCES
     ${CMAKE_SOURCE_DIR}/main.cpp
@@ -36,6 +39,7 @@ set(SOURCES
     ${CMAKE_SOURCE_DIR}/Chess/gfx/vao.c
     ${CMAKE_SOURCE_DIR}/Chess/gfx/vbo.c
     ${CMAKE_SOURCE_DIR}/Chess/gfx/shader.c
+    ${CMAKE_SOURCE_DIR}/Chess/gfx/texture.c
     ${CMAKE_SOURCE_DIR}/Chess/gfx/window.c
 
     # core folder
