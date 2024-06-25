@@ -4,36 +4,34 @@
 #include "Chess/gfx/gfx.h"
 
 
-struct Texture texture_create(const char* image)
+struct Texture texture_create(const char* path)
 {
-    struct Texture self;
-
-    int width, height, nrChannels;
+    int width, height, channels, format;
+    unsigned char* image;
 
     stbi_set_flip_vertically_on_load(true); 
-    unsigned char *data = stbi_load(image, &width, &height, &nrChannels, 0); 
+    image = stbi_load(path, &width, &height, &channels, 0); 
+    assert(image != NULL);
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    struct Texture self = {
+        .w = width,
+        .h = height,
+        .channels = channels
+    };
 
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    format = self.channels == 4 ? GL_RGBA : GL_RGB;
 
     glGenTextures(1,&self.handle);
     glBindTexture(GL_TEXTURE_2D, self.handle);
-
-    self.mode = nrChannels == 3 ? GL_RGB : GL_RGBA;
-
-if (data)
-{
-    glTexImage2D(GL_TEXTURE_2D, 0, self.mode, width, height, 0, self.mode, GL_UNSIGNED_BYTE, data);
+    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, image);
     glGenerateMipmap(GL_TEXTURE_2D);
-}
-else
-{
-    printf("error loading texture \n");
-    assert(false);
-}  
 
-    stbi_image_free(data);
+    stbi_image_free(image);
     return self;
 };
 
@@ -44,5 +42,10 @@ void texture_bind(struct Texture self)
 
 void texture_destroy(struct Texture self)
 {
+    if(self.handle <= 0)
+    {
+        printf("Warning: Your texture handle is already destoyed! \n");
+        return;
+    };
     glDeleteTextures(1,&self.handle);
 };

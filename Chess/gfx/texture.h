@@ -9,7 +9,8 @@ extern "C" {
 
 struct Texture {
     GLuint handle;
-    GLint mode;
+    int w,h;
+    int channels;
 };
 
 struct Texture texture_create(const char* image);
