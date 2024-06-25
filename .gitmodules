@@ -2,3 +2,7 @@
 	path = dependencies/glm
     url = https://github.com/hxajk/glm
     branch = build
+[submodule "dependencies/glfw"]
+	path = dependencies/glfw
+	url = https://github.com/hxajk/glfw
+    branch = build
