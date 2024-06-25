@@ -11,9 +11,9 @@ else()
 endif()
 
 if(WIN32)
-    find_package(glfw3 REQUIRED PATHS "${CMAKE_SOURCE_DIR}/dependencies/GLFW/Windows/")
+    find_package(glfw3 REQUIRED PATHS "${CMAKE_SOURCE_DIR}/dependencies/glfw/Windows/")
 elseif(UNIX)
-    find_package(glfw3 REQUIRED PATHS "${CMAKE_SOURCE_DIR}/dependencies/GLFW/Linux/")
+    find_package(glfw3 REQUIRED PATHS "${CMAKE_SOURCE_DIR}/dependencies/glfw/Linux/")
 endif()
 
 find_package(glm PATHS "${CMAKE_SOURCE_DIR}/dependencies/glm")

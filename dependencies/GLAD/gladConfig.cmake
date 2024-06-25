@@ -1,7 +1,7 @@
 
 # Set glad include directory
 
-include_directories("C:/Deps/glad/include")
+include_directories("${CMAKE_SOURCE_DIR}/dependencies/GLAD/include")
 
 # Add glad library
 add_library(glad STATIC IMPORTED)
