@@ -25,4 +25,6 @@ struct Board board_init();
 
 void board_render(struct Board self);
 
+void board_destroy(struct Board self);
+
 #endif

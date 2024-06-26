@@ -2,6 +2,12 @@
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+/**
+ * @brief Initalize, create chess board.
+ * 
+ * @return struct Board 
+ */
+
 struct Board board_init(){
     glm::mat4 proj;
     struct Board self = {
@@ -44,6 +50,12 @@ struct Board board_init(){
     return self;
 };
 
+/**
+ * @brief Render, draw board.
+ * 
+ * @param self 
+ */
+
 void board_render(struct Board self){
     shader_bind(self.shader_vertex);
     vao_bind(self.array_vertex);
@@ -51,3 +63,16 @@ void board_render(struct Board self){
     glDrawElements(GL_TRIANGLES, self.index_data.size(), GL_UNSIGNED_INT, 0 );
 };
 
+/**
+ * @brief Destroy, destruct board
+ * 
+ * @param self 
+ */
+
+void board_destroy(struct Board self)
+{
+    shader_destroy(self.shader_vertex);
+    vao_destroy(self.array_vertex);
+    vbo_destroy(self.buffer_vertex);
+    vbo_destroy(self.index_vertex);
+};
