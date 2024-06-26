@@ -5,8 +5,9 @@ layout (location = 1) in vec2 aTex;
 
 out vec2 tex;
 
+uniform mat4 proj;
 void main()
 {
-    gl_Position = vec4(aPos,0.0f,1.0f);
+    gl_Position = proj * vec4(aPos.x,aPos.y,0.0f,1.0f);
     tex = aTex;
 }

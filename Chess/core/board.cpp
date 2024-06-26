@@ -1,4 +1,6 @@
 #include <Chess/core/board.h>
+#include <glm/ext/matrix_clip_space.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 /*
 Test whether or not our ortho working perfectly
@@ -15,14 +17,13 @@ struct Board board_init(){
 
     // My path after: ../build
 
-
     self.shader_vertex = shader_create("../resources/shaders/base.vs", "../resources/shaders/board.fs");
 
     self.buffer_data = {
-            -1,-1,  
-            -1,1,  
-            1,1,   
-            1,-1,   
+            0,0,  
+            0,512,  
+            512,512,   
+            512,0,   
     };
 
     self.index_data = {
@@ -45,7 +46,9 @@ struct Board board_init(){
 
     shader_bind(self.shader_vertex);
 
-    glUniform2f(glGetUniformLocation(self.shader_vertex.handle,"resolution"),window_get().x,window_get().y);
+    glUniformMatrix4fv(glGetUniformLocation(self.shader_vertex.handle,"proj"),1,false,glm::value_ptr(glm::ortho<float>(0,512,0,512)));
+
+    glUniform2f(glGetUniformLocation(self.shader_vertex.handle,"resolution"),(float)window_get().x,(float)window_get().y);
 
     return self;
 };
