@@ -17,9 +17,8 @@ struct Board {
   
   // TODO: Try to make this work on C
 
-  std::vector<unsigned int> index_data;
   std::vector<float> buffer_data;
-
+  std::vector<unsigned int> index_data;
 };
 
 struct Board board_init();
