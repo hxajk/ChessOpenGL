@@ -1,3 +1,5 @@
+/// @file board.c
+
 #include <Chess/core/board.h>
 /**
  * @brief Initalize, create chess board.
