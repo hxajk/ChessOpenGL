@@ -8,6 +8,7 @@ extern "C" {
 #include <Chess/gfx/shader.h>
 #include <Chess/gfx/window.h>
 
+#include <cglm/cglm.h>
 #ifndef BOARD_H
 #define BOARD_H
 

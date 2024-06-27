@@ -1,5 +1,4 @@
 #include <Chess/core/board.h>
-#include <cglm/cglm.h>
 /**
  * @brief Initalize, create chess board.
  * 
@@ -33,7 +32,7 @@ struct Board board_init(){
     vbo_bind(self.index_vertex);
 
     vbo_data(self.buffer_vertex, (float*)self.buffer_data , sizeof(self.buffer_data) );
-    vbo_data(self.index_vertex, (float*)self.index_data , sizeof(self.index_data) ) ;
+    vbo_data(self.index_vertex, (unsigned int*)self.index_data , sizeof(self.index_data) ) ;
 
     vao_bind(self.array_vertex);
     vao_attrib(self.array_vertex, self.buffer_vertex, 0, 2, GL_FLOAT, 2 * sizeof(float), 0);
