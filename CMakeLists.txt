@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.5)
 
 project(ChessOpenGL)
 
-if(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/dependencies/glm OR IS_DIRECTORY ${CMAKE_SOURCE_DIR}/dependencies/glfw)
-    
+if(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/dependencies/cglm OR IS_DIRECTORY ${CMAKE_SOURCE_DIR}/dependencies/glfw)
+
 else()
     message("\n==================================================================================================")
     message(SEND_ERROR "Did you forget to git clone --recurse-submodules https://github.com/hxajk/ChessOpenGL ?")
@@ -43,7 +43,7 @@ set(SOURCES
     ${CMAKE_SOURCE_DIR}/Chess/gfx/window.c
 
     # core folder
-    ${CMAKE_SOURCE_DIR}/Chess/core/board.cpp
+    ${CMAKE_SOURCE_DIR}/Chess/core/board.c
 )
 
 add_executable(run ${SOURCES})

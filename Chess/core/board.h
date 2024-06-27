@@ -1,4 +1,8 @@
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <Chess/gfx/vao.h>
 #include <Chess/gfx/vbo.h>
 #include <Chess/gfx/shader.h>
@@ -13,8 +17,6 @@ struct Board {
   struct  VAO array_vertex;
   struct Shader shader_vertex;
   
-  // TODO: Try to make this work on C
-
   float buffer_data[8];
   unsigned int index_data[6];
 };
@@ -25,4 +27,8 @@ void board_render(struct Board self);
 
 void board_destroy(struct Board self);
 
+#endif
+
+#ifdef __cplusplus
+  }
 #endif

@@ -1,7 +1,4 @@
 #include <Chess/core/board.h>
-/* #include <glm/ext/matrix_clip_space.hpp>
-#include <cglm/cam.h>
-#include <glm/gtc/type_ptr.hpp> */
 #include <cglm/cglm.h>
 /**
  * @brief Initalize, create chess board.
