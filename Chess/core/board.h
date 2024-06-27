@@ -7,8 +7,6 @@
 #ifndef BOARD_H
 #define BOARD_H
 
-#include <vector>
-
 struct Board {
   struct  VBO buffer_vertex;
   struct  VBO index_vertex;
@@ -17,8 +15,8 @@ struct Board {
   
   // TODO: Try to make this work on C
 
-  std::vector<float> buffer_data;
-  std::vector<unsigned int> index_data;
+  float buffer_data[8];
+  unsigned int index_data[6];
 };
 
 struct Board board_init();

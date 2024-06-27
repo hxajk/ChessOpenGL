@@ -1,7 +1,7 @@
 #include <Chess/core/board.h>
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/gtc/type_ptr.hpp>
-
+#include <cglm/cglm.h>
 /**
  * @brief Initalize, create chess board.
  * 
@@ -35,8 +35,8 @@ struct Board board_init(){
     vbo_bind(self.buffer_vertex);
     vbo_bind(self.index_vertex);
 
-    vbo_data(self.buffer_vertex, self.buffer_data.data(), self.buffer_data.size() * sizeof(float) );
-    vbo_data(self.index_vertex, self.index_data.data(), self.index_data.size() * sizeof(GLuint));
+    vbo_data(self.buffer_vertex, (float*)self.buffer_data , sizeof(self.buffer_data) );
+    vbo_data(self.index_vertex, (float*)self.index_data , sizeof(self.index_data) ) ;
 
     vao_bind(self.array_vertex);
     vao_attrib(self.array_vertex, self.buffer_vertex, 0, 2, GL_FLOAT, 2 * sizeof(float), 0);
@@ -60,7 +60,7 @@ void board_render(struct Board self){
     shader_bind(self.shader_vertex);
     vao_bind(self.array_vertex);
     vbo_bind(self.index_vertex);
-    glDrawElements(GL_TRIANGLES, self.index_data.size(), GL_UNSIGNED_INT, 0 );
+    glDrawElements(GL_TRIANGLES, sizeof(self.index_data) / sizeof(unsigned int), GL_UNSIGNED_INT, 0 );
 };
 
 /**
