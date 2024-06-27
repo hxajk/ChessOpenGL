@@ -21,20 +21,20 @@
 /////////////////////////////////////////////////////////////
 
 
-void run(int width, int height, std::string title);
+void run(int width, int height, const char* title);
 
 int main(int argc, char *argv[])
 {
     run(1024 / 2,1024 / 2,"Chess");
 };
 
-void run(int width, int height, std::string title)
+void run(int width, int height, const char* title)
 {
     if(!glfwInit()){
         return;
     }
 
-    Window window = window_init(width, height, title.c_str()); 
+    Window window = window_init(width, height, title); 
 
     Board board = board_init();
 

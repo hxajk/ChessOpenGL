@@ -1,6 +1,7 @@
 #include <Chess/core/board.h>
-#include <glm/ext/matrix_clip_space.hpp>
-#include <glm/gtc/type_ptr.hpp>
+/* #include <glm/ext/matrix_clip_space.hpp>
+#include <cglm/cam.h>
+#include <glm/gtc/type_ptr.hpp> */
 #include <cglm/cglm.h>
 /**
  * @brief Initalize, create chess board.
@@ -9,7 +10,7 @@
  */
 
 struct Board board_init(){
-    glm::mat4 proj;
+    mat4 proj;
     struct Board self = {
         .shader_vertex = shader_create("../resources/shaders/base.vs", "../resources/shaders/board.fs"),
 
@@ -25,8 +26,7 @@ struct Board board_init(){
         },
     };
 
-    proj = glm::ortho<float>(0,512,0,512);
-
+    glm_ortho(0, (float)window_get().x, 0, (float)window_get().y, -1, 1, proj);
 
     self.buffer_vertex = vbo_create(GL_ARRAY_BUFFER, false);
     self.array_vertex = vao_create();
@@ -43,7 +43,7 @@ struct Board board_init(){
 
     shader_bind(self.shader_vertex);
 
-    glUniformMatrix4fv(glGetUniformLocation(self.shader_vertex.handle,"proj"),1,false,glm::value_ptr(proj));
+    glUniformMatrix4fv(glGetUniformLocation(self.shader_vertex.handle,"proj"),1,false,*proj);
 
     glUniform2f(glGetUniformLocation(self.shader_vertex.handle,"resolution"),(float)window_get().x,(float)window_get().y);
 

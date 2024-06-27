@@ -16,7 +16,7 @@ elseif(UNIX)
     find_package(glfw3 REQUIRED PATHS "${CMAKE_SOURCE_DIR}/dependencies/glfw/Linux/")
 endif()
 
-find_package(glm PATHS "${CMAKE_SOURCE_DIR}/dependencies/glm")
+find_package(cglm PATHS "${CMAKE_SOURCE_DIR}/dependencies/cglm")
 
 find_package(glad REQUIRED PATHS "${CMAKE_SOURCE_DIR}/dependencies/GLAD/")
 
@@ -48,7 +48,7 @@ set(SOURCES
 
 add_executable(run ${SOURCES})
 
-target_link_libraries(run glfw glad glm::glm)
+target_link_libraries(run glfw glad cglm::cglm)
 
 if(DEBUG)
     #[[     add_custom_command(OUTPUT Debug...
