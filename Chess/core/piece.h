@@ -25,6 +25,8 @@ struct Piece {
   
   float buffer_data[8*2];
   unsigned int index_data[6];
+
+  vec2 piece_sprites[12][2];
 };
 
 struct Piece piece_init();
