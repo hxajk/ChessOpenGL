@@ -63,6 +63,9 @@ struct Window window_init(int x, int y, const char* title)
         assert(false);
     }
 
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     glfwSwapInterval(1);
 
     return self;
