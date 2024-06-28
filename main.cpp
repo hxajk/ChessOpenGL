@@ -12,12 +12,8 @@
 */
 
 ///////////////////////////////////////////////////////////////
-#include "Chess/gfx/shader.h"
-#include "Chess/gfx/vao.h"
-#include "Chess/gfx/vbo.h"
-#include "Chess/gfx/window.h"
-
 #include "Chess/core/board.h"
+#include "Chess/core/piece.h"
 /////////////////////////////////////////////////////////////
 
 
@@ -38,10 +34,12 @@ void run(int width, int height, const char* title)
 
     Board board = board_init();
 
+    Piece piece = piece_init();
+
 
     while (!glfwWindowShouldClose(window.handle)) {
-
         board_render(board);
+        piece_render(piece);
         window_render(window);
     }
 

@@ -1,4 +1,8 @@
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 
 #include <Chess/gfx/vao.h>
 #include <Chess/gfx/vbo.h>
@@ -19,7 +23,7 @@ struct Piece {
   struct Texture texture_vertex;
 
   
-  float buffer_data[8];
+  float buffer_data[8*2];
   unsigned int index_data[6];
 };
 
@@ -29,4 +33,8 @@ void piece_render(struct Piece self);
 
 void piece_destroy(struct Piece self);
 
+#endif
+
+#ifdef __cplusplus
+    }
 #endif
