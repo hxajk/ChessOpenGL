@@ -34,12 +34,12 @@ void run(int width, int height, const char* title)
 
     Board board = board_init();
 
-    /* Piece piece = piece_init(); */
+    Piece piece = piece_init();
 
 
     while (!glfwWindowShouldClose(window.handle)) {
         board_render(board);
-        /* piece_render(piece); */
+        piece_render(piece);
         window_render(window);
     }
 

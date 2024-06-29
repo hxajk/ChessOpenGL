@@ -12,10 +12,10 @@ struct Piece piece_init()
         .shader_vertex = shader_create("../resources/shaders/base.vs", "../resources/shaders/base.fs"),
         .texture_vertex = texture_create("../resources/texture/black_king.png"),
         .buffer_data = {
-            0,384,  0,1,
-            512,384, 1,1,
-            512,128, 1,0,
-            0,128, 0,0,
+            0,36,  0,1 ,
+            72,36, 1,1,
+            72,0, 1,0,
+            0,0, 0,0,
         },
         .index_data = {
             0,1,2,2,3,0
@@ -24,13 +24,7 @@ struct Piece piece_init()
 
     glm_ortho(0, (float)window_get().x, 0, (float)window_get().y / 2, -1, 1, proj);
 
-    tileSize = (float)self.texture_vertex.w / 6.0f;
 
-/*     for(int y = 0;y < 2;y++){
-        for(int x = 0;x < 6;x++){
-            
-        };
-    }; */
 
     self.array_vertex = vao_create(),
     self.buffer_vertex = vbo_create(GL_ARRAY_BUFFER, false),
