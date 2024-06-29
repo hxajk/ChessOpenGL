@@ -21,7 +21,7 @@ void run(int width, int height, const char* title);
 
 int main(int argc, char *argv[])
 {
-    run(1024,568,"Chess");
+    run(1024,576,"Chess");
 };
 
 void run(int width, int height, const char* title)

@@ -14,9 +14,9 @@ struct Board board_init(){
         .texture_vertex = texture_create("../resources/texture/Board.png"),
         .buffer_data = {
             0,0,  0,0,
-            0,568,  1,0,
-            568,568,  1,1, 
-            568,0,  0,1,
+            0,576,  0,1,
+            576,576,  1,1, 
+            576,0,  1,0,
         },
 
         .index_data = {
