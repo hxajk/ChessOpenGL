@@ -21,7 +21,7 @@ void run(int width, int height, const char* title);
 
 int main(int argc, char *argv[])
 {
-    run(1024 / 2,1024 / 2,"Chess");
+    run(1024,568,"Chess");
 };
 
 void run(int width, int height, const char* title)
@@ -34,12 +34,12 @@ void run(int width, int height, const char* title)
 
     Board board = board_init();
 
-    Piece piece = piece_init();
+    /* Piece piece = piece_init(); */
 
 
     while (!glfwWindowShouldClose(window.handle)) {
         board_render(board);
-        piece_render(piece);
+        /* piece_render(piece); */
         window_render(window);
     }
 

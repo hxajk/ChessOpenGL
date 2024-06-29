@@ -6,6 +6,7 @@ extern "C" {
 #include <Chess/gfx/vao.h>
 #include <Chess/gfx/vbo.h>
 #include <Chess/gfx/shader.h>
+#include <Chess/gfx/texture.h>
 #include <Chess/gfx/window.h>
 
 #include <cglm/cglm.h>
@@ -17,8 +18,9 @@ struct Board {
   struct  VBO index_vertex;
   struct  VAO array_vertex;
   struct Shader shader_vertex;
+  struct Texture texture_vertex;
   
-  float buffer_data[8];
+  float buffer_data[8*2];
   unsigned int index_data[6];
 };
 

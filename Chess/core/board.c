@@ -10,13 +10,13 @@
 struct Board board_init(){
     mat4 proj;
     struct Board self = {
-        .shader_vertex = shader_create("../resources/shaders/base.vs", "../resources/shaders/board.fs"),
-
+        .shader_vertex = shader_create("../resources/shaders/base.vs", "../resources/shaders/base.fs"),
+        .texture_vertex = texture_create("../resources/texture/Board.png"),
         .buffer_data = {
-            0,0,  
-            0,512,  
-            512,512,   
-            512,0,
+            0,0,  0,0,
+            0,568,  1,0,
+            568,568,  1,1, 
+            568,0,  0,1,
         },
 
         .index_data = {
@@ -37,14 +37,13 @@ struct Board board_init(){
     vbo_data(self.index_vertex, (unsigned int*)self.index_data , sizeof(self.index_data) ) ;
 
     vao_bind(self.array_vertex);
-    vao_attrib(self.array_vertex, self.buffer_vertex, 0, 2, GL_FLOAT, 2 * sizeof(float), 0);
+    vao_attrib(self.array_vertex, self.buffer_vertex, 0, 2, GL_FLOAT, 4 * sizeof(float), 0);
+    vao_attrib(self.array_vertex, self.buffer_vertex, 1, 2, GL_FLOAT, 4 * sizeof(float), 8);
 
     shader_bind(self.shader_vertex);
 
     glUniformMatrix4fv(glGetUniformLocation(self.shader_vertex.handle,"proj"),1,false,*proj);
-
-    glUniform2f(glGetUniformLocation(self.shader_vertex.handle,"resolution"),(float)window_get().x,(float)window_get().y);
-
+    glUniform1i(glGetUniformLocation(self.shader_vertex.handle,"id"),0);
     return self;
 };
 
@@ -56,6 +55,7 @@ struct Board board_init(){
 
 void board_render(struct Board self){
     shader_bind(self.shader_vertex);
+    texture_bind(self.texture_vertex);
     vao_bind(self.array_vertex);
     vbo_bind(self.index_vertex);
     glDrawElements(GL_TRIANGLES, sizeof(self.index_data) / sizeof(unsigned int), GL_UNSIGNED_INT, 0 );
