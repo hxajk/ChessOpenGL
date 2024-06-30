@@ -321,7 +321,7 @@ void piece_render(struct Piece self)
         }
         else if(i >= 21 && i < 24)
         {
-            texture_bind(self.texture_vertex[19 - i]);
+            texture_bind(self.texture_vertex[23 - i + 6]);
         }
         else if(i >= 24 && i <= 32)
         {
