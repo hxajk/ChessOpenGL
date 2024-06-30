@@ -16,10 +16,12 @@ extern "C" {
 #define PIECE_H
 
 struct Piece {
-  struct  VBO buffer_vertex[12];
-  struct  VBO index_vertex;
-  struct  VAO array_vertex;
+  
   struct Shader shader_vertex;
+  struct  VBO index_vertex;
+
+  struct  VBO buffer_vertex[12];
+  struct  VAO array_vertex[12];
   struct Texture texture_vertex[12];
 
   

@@ -25,7 +25,7 @@
 struct Piece piece_init()
 {
     mat4 proj;
-    float size = 72; // fix later on...
+    float scale = 72; // fix later on...
     struct VBO coordinate_vertex;
     struct Piece self = {
         .shader_vertex = shader_create("../resources/shaders/base.vs", "../resources/shaders/base.fs"),
@@ -35,12 +35,17 @@ struct Piece piece_init()
     };
     float buffer_position_data[12][16] = {
         {
-            0,size,    
-            size,size, 
-            size,0,    
-            0,0,   
+            4*scale,1*scale,    
+            5*scale,1*scale, 
+            5*scale,0*scale,    
+            4*scale,0*scale,   
         },
-        {},
+        {
+            3*scale,1*scale,    
+            4*scale,1*scale, 
+            4*scale,0*scale,    
+            3*scale,0*scale, 
+        },
         {},
         {},
         {},
@@ -79,28 +84,28 @@ struct Piece piece_init()
 
     glm_ortho(0, (float)window_get().x, 0, (float)window_get().y, -1, 1, proj);
 
-    self.array_vertex = vao_create();
-    for(int i = 0;i < 12;i++){
-        self.texture_vertex[0] = texture_create(image_paths[0]);  
-        self.buffer_vertex[0] = vbo_create(GL_ARRAY_BUFFER, false);
+    for(int i = 0;i < 2;i++){
+        self.buffer_vertex[i] = vbo_create(GL_ARRAY_BUFFER, false);
+        self.array_vertex[i] = vao_create();
+        self.texture_vertex[i] = texture_create(image_paths[i]);  
     }
     coordinate_vertex = vbo_create(GL_ARRAY_BUFFER,false);
     self.index_vertex = vbo_create(GL_ELEMENT_ARRAY_BUFFER, false);
 
 
-    for(int i = 0;i < 12;i += 1)
+    for(int i = 0;i < 2;i += 1)
     {
-        vbo_data(self.buffer_vertex[0], buffer_position_data[0], sizeof(buffer_position_data[0]));
+        vao_bind(self.array_vertex[i]);
+        vbo_data(self.buffer_vertex[i], buffer_position_data[i], sizeof(buffer_position_data[i]));
     };
     vbo_data(coordinate_vertex, buffer_coordinate_data, sizeof(buffer_coordinate_data));
     vbo_data(self.index_vertex, (unsigned int*)self.index_data, sizeof(self.index_data));
 
-    vao_bind(self.array_vertex);
-    for(int i = 0;i < 12;i += 1)
+    for(int i = 0;i < 2;i += 1)
     {
-        vao_attrib(self.array_vertex, self.buffer_vertex[0], 0, 2, GL_FLOAT, 0, 0);
+        vao_attrib(self.array_vertex[i], self.buffer_vertex[i], 0, 2, GL_FLOAT, 0, 0);
+        vao_attrib(self.array_vertex[i], coordinate_vertex, 1, 2, GL_FLOAT, 0, 0);
     };
-    vao_attrib(self.array_vertex, coordinate_vertex, 1, 2, GL_FLOAT, 0, 0);
     
     shader_bind(self.shader_vertex);
     glUniformMatrix4fv(glGetUniformLocation(self.shader_vertex.handle,"proj"),1,false,*proj);
@@ -112,22 +117,22 @@ struct Piece piece_init()
 void piece_render(struct Piece self)
 {
     shader_bind(self.shader_vertex);
-    for(int i = 0;i < 12;i += 1)
+    for(int i = 0;i < 2;i += 1)
     {
-        texture_bind(self.texture_vertex[0]);
+        texture_bind(self.texture_vertex[i]);
+        vao_bind(self.array_vertex[i]);
+        vbo_bind(self.index_vertex);
+        glDrawElements(GL_TRIANGLES,sizeof(self.index_data) / sizeof(unsigned int),GL_UNSIGNED_INT,0);
     };
-    vao_bind(self.array_vertex);
-    vbo_bind(self.index_vertex);
-    glDrawElements(GL_TRIANGLES,sizeof(self.index_data) / sizeof(unsigned int),GL_UNSIGNED_INT,0);
 };
 
 void piece_destroy(struct Piece self)
 {
     shader_destroy(self.shader_vertex);
-    for(int i = 0;i < 12;i += 1)
+    vbo_destroy(self.index_vertex);
+    for(int i = 0;i < 2;i += 1)
     {
         vbo_destroy(self.buffer_vertex[i]);
+        vao_destroy(self.array_vertex[i]);
     };
-    vao_destroy(self.array_vertex);
-    vbo_destroy(self.index_vertex);
 }; 
