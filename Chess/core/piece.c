@@ -1,6 +1,11 @@
 #include "Chess/gfx/gfx.h"
 #include <Chess/core/piece.h>
 
+#define PIECE_LIMITS 32
+#define IMAGES_LIMITS 12
+#define WHITE_PAWN_INDEX 5
+#define BLACK_PAWN_INDEX 11
+
 /*
     SECTIONS:
    
@@ -21,9 +26,6 @@
     <data>[11] (8 times)  ->  Black Pawn
  */
 
-// c is hell, and strict :(
-int piece_limits = 32;
-int images_limits = 12;
 
 /**
  * @brief Initalize piece, create chess pieces
@@ -42,205 +44,58 @@ struct Piece piece_init()
             0,1,2,2,3,0
         }
     };
-    float buffer_position_data[32][16] = {
+    float buffer_position_data[32][8] = {{0}};
+    vec2 point = {0,1}; 
+    for(int i = 0;i < 8;i += 1)
+    {
+        // Mayor white pieces
+        for(int j = 0;j < 8;j += 1)
         {
-            0*scale,1*scale,    
-            1*scale,1*scale, 
-            1*scale,0*scale,    
-            0*scale,0*scale,
-        },
+            if((j & 1) == 1)
+                buffer_position_data[i][j] = scale*(j <= 3 ? 1 : 0);
+            else
+                buffer_position_data[i][j] = scale*(j == 0 || j == 6 ? point[0] : point[1]);
+        };
+        point[0]++; point[1]++;
+    };
+    point[0] = 0; point[1] = 1;
+    for(int i = 8;i < 16;i += 1)
+    {
+        // White pawn pieces
+        for(int j = 0;j < 8;j += 1)
         {
-            1*scale,1*scale,    
-            2*scale,1*scale, 
-            2*scale,0*scale,    
-            1*scale,0*scale,
-        },
+            if((j & 1) == 1)
+                buffer_position_data[i][j] = scale*(j <= 3 ? 2 : 1);
+            else
+                buffer_position_data[i][j] = scale*(j == 0 || j == 6 ? point[0] : point[1]); 
+        };      
+        point[0]++; point[1]++;
+    };
+    point[0] = 0; point[1] = 1;
+    for(int i = 16;i < 24;i += 1)
+    {
+        // Mayor black pieces
+        for(int j = 0;j < 8;j += 1)
         {
-            2*scale,1*scale,    
-            3*scale,1*scale, 
-            3*scale,0*scale,    
-            2*scale,0*scale,
-        },
+            if((j&1) == 1)
+                buffer_position_data[i][j] = scale*(j <= 3 ? 8 : 7);
+            else
+                buffer_position_data[i][j] = scale*(j == 0 || j == 6 ? point[0] : point[1]); 
+        };      
+        point[0]++; point[1]++;
+    };
+    point[0] = 0; point[1] = 1;
+    for(int i = 24;i < 33;i += 1)
+    {
+        // Black pawn pieces
+        for(int j = 0;j < 8;j += 1)
         {
-            3*scale,1*scale,    
-            4*scale,1*scale, 
-            4*scale,0*scale,    
-            3*scale,0*scale, 
-        },
-        {
-            4*scale,1*scale,    
-            5*scale,1*scale, 
-            5*scale,0*scale,    
-            4*scale,0*scale,   
-        },
-        {
-            5*scale,1*scale,    
-            6*scale,1*scale, 
-            6*scale,0*scale,    
-            5*scale,0*scale,   
-        },
-
-        {
-            6*scale,1*scale,    
-            7*scale,1*scale, 
-            7*scale,0*scale,    
-            6*scale,0*scale,   
-        },
-
-        {
-            7*scale,1*scale,    
-            8*scale,1*scale, 
-            8*scale,0*scale,    
-            7*scale,0*scale,   
-        },
-
-        {
-            0*scale,2*scale,    
-            1*scale,2*scale, 
-            1*scale,1*scale,    
-            0*scale,1*scale,
-        },
-        {
-            1*scale,2*scale,    
-            2*scale,2*scale, 
-            2*scale,1*scale,    
-            1*scale,1*scale,
-        },
-        {
-            2*scale,2*scale,    
-            3*scale,2*scale, 
-            3*scale,1*scale,    
-            2*scale,1*scale,
-        },
-        {
-            3*scale,2*scale,    
-            4*scale,2*scale, 
-            4*scale,1*scale,    
-            3*scale,1*scale, 
-        },
-        {
-            4*scale,2*scale,    
-            5*scale,2*scale, 
-            5*scale,1*scale,    
-            4*scale,1*scale,   
-        },
-        {
-            5*scale,2*scale,    
-            6*scale,2*scale, 
-            6*scale,1*scale,    
-            5*scale,1*scale,   
-        },
-        {
-            6*scale,2*scale,    
-            7*scale,2*scale, 
-            7*scale,1*scale,    
-            6*scale,1*scale,   
-        },
-        {
-            7*scale,2*scale,    
-            8*scale,2*scale, 
-            8*scale,1*scale,    
-            7*scale,1*scale,   
-        },
-
-
-        {
-            0*scale,8*scale,    
-            1*scale,8*scale, 
-            1*scale,7*scale,    
-            0*scale,7*scale,
-        },
-        {
-            1*scale,8*scale,    
-            2*scale,8*scale, 
-            2*scale,7*scale,    
-            1*scale,7*scale,
-        },
-        {
-            2*scale,8*scale,    
-            3*scale,8*scale, 
-            3*scale,7*scale,    
-            2*scale,7*scale,
-        },
-        {
-            3*scale,8*scale,    
-            4*scale,8*scale, 
-            4*scale,7*scale,    
-            3*scale,7*scale,
-        },
-        {
-            4*scale,8*scale,    
-            5*scale,8*scale, 
-            5*scale,7*scale,    
-            4*scale,7*scale,
-        },
-
-        {
-            5*scale,8*scale,    
-            6*scale,8*scale, 
-            6*scale,7*scale,    
-            5*scale,7*scale,
-        },
-        {
-            6*scale,8*scale,    
-            7*scale,8*scale, 
-            7*scale,7*scale,    
-            6*scale,7*scale,
-        },
-        {
-            7*scale,8*scale,    
-            8*scale,8*scale, 
-            8*scale,7*scale,    
-            7*scale,7*scale,
-        },
-        {
-            0*scale,7*scale,    
-            1*scale,7*scale, 
-            1*scale,6*scale,    
-            0*scale,6*scale,
-        },
-        {
-            1*scale,7*scale,    
-            2*scale,7*scale, 
-            2*scale,6*scale,    
-            1*scale,6*scale,
-        },
-        {
-            2*scale,7*scale,    
-            3*scale,7*scale, 
-            3*scale,6*scale,    
-            2*scale,6*scale,
-        },
-        {
-            3*scale,7*scale,    
-            4*scale,7*scale, 
-            4*scale,6*scale,    
-            3*scale,6*scale,
-        },
-        {
-            4*scale,7*scale,    
-            5*scale,7*scale, 
-            5*scale,6*scale,    
-            4*scale,6*scale,
-        },
-        {
-            5*scale,7*scale,    
-            6*scale,7*scale, 
-            6*scale,6*scale,    
-            5*scale,6*scale,
-        },
-        {
-            6*scale,7*scale,    
-            7*scale,7*scale, 
-            7*scale,6*scale,    
-            6*scale,6*scale,
-        },
-        {
-            7*scale,7*scale,    
-            8*scale,7*scale, 
-            8*scale,6*scale,    
-            7*scale,6*scale,
-        },        
+            if((j&1) == 1)
+                buffer_position_data[i][j] = scale*(j <= 3 ? 7 : 6);
+            else
+                buffer_position_data[i][j] = scale*(j == 0 || j == 6 ? point[0] : point[1]); 
+        };      
+        point[0]++; point[1]++;
     };
 
     float buffer_coordinate_data[8] = {
@@ -269,18 +124,18 @@ struct Piece piece_init()
 
     glm_ortho(0, (float)window_get().x, 0, (float)window_get().y, -1, 1, proj);
 
-    for(int i = 0;i < piece_limits;i++){
+    for(int i = 0;i < PIECE_LIMITS;i++){
         self.buffer_vertex[i] = vbo_create(GL_ARRAY_BUFFER, false);
         self.array_vertex[i] = vao_create();
     }
-    for(int i = 0;i < images_limits;i++){
+    for(int i = 0;i < IMAGES_LIMITS;i++){
         self.texture_vertex[i] = texture_create(image_paths[i]);  
     };
 
     coordinate_vertex = vbo_create(GL_ARRAY_BUFFER,false);
     self.index_vertex = vbo_create(GL_ELEMENT_ARRAY_BUFFER, false);
 
-    for(int i = 0;i < piece_limits;i += 1)
+    for(int i = 0;i < PIECE_LIMITS;i += 1)
     {
         vao_bind(self.array_vertex[i]);
         vbo_data(self.buffer_vertex[i], buffer_position_data[i], sizeof(buffer_position_data[i]));
@@ -288,7 +143,7 @@ struct Piece piece_init()
     vbo_data(coordinate_vertex, buffer_coordinate_data, sizeof(buffer_coordinate_data));
     vbo_data(self.index_vertex, (unsigned int*)self.index_data, sizeof(self.index_data));
 
-    for(int i = 0;i < piece_limits;i += 1)
+    for(int i = 0;i < PIECE_LIMITS;i += 1)
     {
         vao_attrib(self.array_vertex[i], self.buffer_vertex[i], 0, 2, GL_FLOAT, 0, 0);
         vao_attrib(self.array_vertex[i], coordinate_vertex, 1, 2, GL_FLOAT, 0, 0);
@@ -310,7 +165,7 @@ struct Piece piece_init()
 void piece_render(struct Piece self)
 {
     shader_bind(self.shader_vertex);
-    for(int i = 0;i < piece_limits;i += 1)
+    for(int i = 0;i < PIECE_LIMITS;i += 1)
     {
         if(glm_max(0,i) <= 7) {
             // Mayor White pieces
@@ -318,7 +173,7 @@ void piece_render(struct Piece self)
         }
         else if(glm_max(8,i) <= 15) {
             // Pawn White pieces
-            texture_bind(self.texture_vertex[5]);
+            texture_bind(self.texture_vertex[WHITE_PAWN_INDEX]);
         }
         else if(glm_max(16,i) <= 23){
             // Mayor Black pieces
@@ -326,7 +181,7 @@ void piece_render(struct Piece self)
         }
         else if(glm_max(24,i) <= 32){
             // Pawn Black pieces
-            texture_bind(self.texture_vertex[11]);
+            texture_bind(self.texture_vertex[BLACK_PAWN_INDEX]);
         };
         vao_bind(self.array_vertex[i]);
         vbo_bind(self.index_vertex);
@@ -344,7 +199,7 @@ void piece_destroy(struct Piece self)
 {
     shader_destroy(self.shader_vertex);
     vbo_destroy(self.index_vertex);
-    for(int i = 0;i < piece_limits;i += 1)
+    for(int i = 0;i < PIECE_LIMITS;i += 1)
     {
         vbo_destroy(self.buffer_vertex[i]);
         vao_destroy(self.array_vertex[i]);
