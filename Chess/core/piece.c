@@ -21,15 +21,20 @@
     <data>[11] (8 times)  ->  Black Pawn
  */
 
-// TODO: Try to replace <data>[0] with <data>[i], and do the work<3
 // c is hell, and strict :(
 int piece_limits = 32;
 int images_limits = 12;
 
+/**
+ * @brief Initalize piece, create chess pieces
+ * 
+ * @return struct Piece 
+ */
+
 struct Piece piece_init()
 {
     mat4 proj;
-    float scale = 72; // fix later on...
+    float scale = 4 * (float)(window_get().y + window_get().y) / 64; // just 4*a, where a is the side of the the board.
     struct VBO coordinate_vertex;
     struct Piece self = {
         .shader_vertex = shader_create("../resources/shaders/base.vs", "../resources/shaders/base.fs"),
@@ -275,7 +280,6 @@ struct Piece piece_init()
     coordinate_vertex = vbo_create(GL_ARRAY_BUFFER,false);
     self.index_vertex = vbo_create(GL_ELEMENT_ARRAY_BUFFER, false);
 
-
     for(int i = 0;i < piece_limits;i += 1)
     {
         vao_bind(self.array_vertex[i]);
@@ -297,42 +301,44 @@ struct Piece piece_init()
     return self;
 };
 
+/**
+ * @brief Render chess piece
+ * 
+ * @param self 
+ */
+
 void piece_render(struct Piece self)
 {
     shader_bind(self.shader_vertex);
     for(int i = 0;i < piece_limits;i += 1)
     {
-        // Piece of art <3
-        if(i >= 0 && i <= 4)
-        {
-            texture_bind(self.texture_vertex[i]);
+        if(glm_max(0,i) <= 7) {
+            // Mayor White pieces
+            texture_bind(self.texture_vertex[(i < 5) ? i : (7 - i)]);
         }
-        else if (i >= 5 && i < 8) {
-            texture_bind(self.texture_vertex[8 - i - 1]);
-           
-        }
-        else if(i >= 8 && i <= 15)
-        {
+        else if(glm_max(8,i) <= 15) {
+            // Pawn White pieces
             texture_bind(self.texture_vertex[5]);
         }
-        else if(i >= 16 && i <= 20)
-        {
-            texture_bind(self.texture_vertex[i - 10]);
+        else if(glm_max(16,i) <= 23){
+            // Mayor Black pieces
+            texture_bind(self.texture_vertex[(i <= 20) ? i - 10 : 23 - i + 6]);
         }
-        else if(i >= 21 && i < 24)
-        {
-            texture_bind(self.texture_vertex[23 - i + 6]);
-        }
-        else if(i >= 24 && i <= 32)
-        {
+        else if(glm_max(24,i) <= 32){
+            // Pawn Black pieces
             texture_bind(self.texture_vertex[11]);
         };
-
         vao_bind(self.array_vertex[i]);
         vbo_bind(self.index_vertex);
         glDrawElements(GL_TRIANGLES,sizeof(self.index_data) / sizeof(unsigned int),GL_UNSIGNED_INT,0);
     };
 };
+
+/**
+ * @brief Destroy chess piece
+ * 
+ * @param self 
+ */
 
 void piece_destroy(struct Piece self)
 {
