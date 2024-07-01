@@ -2,13 +2,13 @@
 #include <Chess/core/piece.h>
 
 #define PIECE_LIMITS 32
+#define POSITIONS_PER_PIECE 8
 #define IMAGES_LIMITS 12
 #define WHITE_PAWN_INDEX 5
 #define BLACK_PAWN_INDEX 11
 
 /*
     SECTIONS:
-   
     <data>[0]  ->  White Rook
     <data>[1]  ->  White Knight
     <data>[2]  ->  White Bishop
@@ -26,6 +26,33 @@
     <data>[11] (8 times)  ->  Black Pawn
  */
 
+/**
+ * @brief Set the position data object
+ * The purpose of this function is to represent position as the square.
+ * @param buffer_position_data 
+ * @param start 
+ * @param end 
+ * @param y 
+ * @param scale 
+ */
+
+void set_position_data(float buffer_position_data[PIECE_LIMITS][POSITIONS_PER_PIECE], int start, int end, int y, float scale){
+    vec2 current_position = {0, 1};
+    int i,j;
+    for (i = start; i < end; i++) {
+            for (j = 0; j < POSITIONS_PER_PIECE; j++) {
+                if ((j & 1) == 1) {
+                    buffer_position_data[i][j] = scale * ((j <= 3) ? y : y - 1); // If y <= 3, draw UP right, else draw UP down
+                } else {
+                    buffer_position_data[i][j] = scale * ((j == 0 || j == 6) ? current_position[0] : current_position[1]);
+                }
+            }
+            current_position[0]++;
+            current_position[1]++;
+        }
+        current_position[0] = 0;
+        current_position[1] = 1;
+};
 
 /**
  * @brief Initalize piece, create chess pieces
@@ -45,58 +72,14 @@ struct Piece piece_init()
         }
     };
     float buffer_position_data[32][8] = {{0}};
-    vec2 point = {0,1}; 
-    for(int i = 0;i < 8;i += 1)
-    {
-        // Mayor white pieces
-        for(int j = 0;j < 8;j += 1)
-        {
-            if((j & 1) == 1)
-                buffer_position_data[i][j] = scale*(j <= 3 ? 1 : 0);
-            else
-                buffer_position_data[i][j] = scale*(j == 0 || j == 6 ? point[0] : point[1]);
-        };
-        point[0]++; point[1]++;
-    };
-    point[0] = 0; point[1] = 1;
-    for(int i = 8;i < 16;i += 1)
-    {
-        // White pawn pieces
-        for(int j = 0;j < 8;j += 1)
-        {
-            if((j & 1) == 1)
-                buffer_position_data[i][j] = scale*(j <= 3 ? 2 : 1);
-            else
-                buffer_position_data[i][j] = scale*(j == 0 || j == 6 ? point[0] : point[1]); 
-        };      
-        point[0]++; point[1]++;
-    };
-    point[0] = 0; point[1] = 1;
-    for(int i = 16;i < 24;i += 1)
-    {
-        // Mayor black pieces
-        for(int j = 0;j < 8;j += 1)
-        {
-            if((j&1) == 1)
-                buffer_position_data[i][j] = scale*(j <= 3 ? 8 : 7);
-            else
-                buffer_position_data[i][j] = scale*(j == 0 || j == 6 ? point[0] : point[1]); 
-        };      
-        point[0]++; point[1]++;
-    };
-    point[0] = 0; point[1] = 1;
-    for(int i = 24;i < 33;i += 1)
-    {
-        // Black pawn pieces
-        for(int j = 0;j < 8;j += 1)
-        {
-            if((j&1) == 1)
-                buffer_position_data[i][j] = scale*(j <= 3 ? 7 : 6);
-            else
-                buffer_position_data[i][j] = scale*(j == 0 || j == 6 ? point[0] : point[1]); 
-        };      
-        point[0]++; point[1]++;
-    };
+    // Initialize major white pieces
+    set_position_data(buffer_position_data,0, 8, 1, scale);
+    // Initialize white pawn pieces
+    set_position_data(buffer_position_data,8, 16, 2, scale);
+    // Initialize major black pieces
+    set_position_data(buffer_position_data,16, 24, 8, scale);
+    // Initialize black pawn pieces
+    set_position_data(buffer_position_data,24, 32, 7, scale);
 
     float buffer_coordinate_data[8] = {
         0,1,
