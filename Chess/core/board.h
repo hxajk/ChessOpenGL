@@ -14,13 +14,12 @@ extern "C" {
 #define BOARD_H
 
 struct Board {
-  struct  VBO buffer_vertex;
-  struct  VBO index_vertex;
-  struct  VAO array_vertex;
   struct Shader shader_vertex;
-  struct Texture texture_vertex;
+  struct  VBO index_vertex;
+
+  struct  VBO buffer_vertex[64];
+  struct  VAO array_vertex[64];
   
-  float buffer_data[8*2];
   unsigned int index_data[6];
 };
 
