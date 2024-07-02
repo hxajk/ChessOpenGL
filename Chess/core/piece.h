@@ -9,7 +9,7 @@ extern "C" {
 #include <Chess/gfx/shader.h>
 #include <Chess/gfx/texture.h>
 #include <Chess/gfx/window.h>
-
+#include "Chess/util/aabb.h"
 #include <cglm/cglm.h>
 
 #ifndef PIECE_H

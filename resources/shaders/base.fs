@@ -11,4 +11,7 @@ void main()
     if(square_type == 1){
         FragColor += vec4(0.353,0.388,0.612, 0.15); //rgb(119, 118, 179)
     }
+    else if(square_type == 2){
+        FragColor += vec4(0.0, 0.8, 0.0, 0.25);
+    }
 }

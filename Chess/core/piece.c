@@ -9,7 +9,7 @@
 #define BLACK_PAWN_INDEX 11
 float buffer_position_data[32][8] = {{0}};
 float scale;
-
+// TODO: Implement valid move hightlight
 /*
     SECTIONS:
     <data>[0]  ->  White Rook
@@ -39,7 +39,7 @@ float scale;
  * @param scale 
  */
 
-void set_position_data(float buffer_position_data[PIECE_LIMITS][POSITIONS_PER_PIECE], int start, int end, int y, float scale){
+static void set_position_data(float buffer_position_data[PIECE_LIMITS][POSITIONS_PER_PIECE], int start, int end, int y, float scale){
     vec2 current_position = {0, 1};
     int i,j;
     for (i = start; i < end; i++) {
@@ -56,7 +56,8 @@ void set_position_data(float buffer_position_data[PIECE_LIMITS][POSITIONS_PER_PI
         current_position[0] = 0;
         current_position[1] = 1;
 };
-bool is_selected_squared(float buffer_position_data[PIECE_LIMITS][POSITIONS_PER_PIECE],int i, int scale, double w, double h)
+
+static bool is_select_squared(float buffer_position_data[PIECE_LIMITS][POSITIONS_PER_PIECE],int i,  double w, double h, int scale)
 {
         glfwGetCursorPos(window_get().handle, &w, &h);
 
@@ -65,13 +66,28 @@ bool is_selected_squared(float buffer_position_data[PIECE_LIMITS][POSITIONS_PER_
 
         h = fabs(h - 576);
 
-        if(buffer_position_data[i][1] >= h && buffer_position_data[i][3] >= h  && buffer_position_data[i][5] <= h && buffer_position_data[i][7] <= h &&
-        buffer_position_data[i][0] <= w && buffer_position_data[i][2]  >= w && buffer_position_data[i][4] >= w && buffer_position_data[i][6] <= w && w <= window_get().y)
-        {
+        if(glms_aabb_pieces(buffer_position_data, i, w, h, window_get().y)){
             return true;
         };
 
         return false;
+};
+
+static bool is_valid_squared(float buffer_position_data[PIECE_LIMITS][POSITIONS_PER_PIECE],int i,  double w, double h, int scale){
+
+        glfwGetCursorPos(window_get().handle, &w, &h);
+
+        h = glm_max(0,h);   
+        w = glm_max(0,w);
+
+        h = fabs(h - 576);
+
+
+        if(glms_aabb_pieces(buffer_position_data, i, w, h, window_get().y)){
+            /* printf("%d \n", i); */
+            return true;
+        };
+    return false;
 };
 
 /**
@@ -83,7 +99,7 @@ bool is_selected_squared(float buffer_position_data[PIECE_LIMITS][POSITIONS_PER_
 struct Piece piece_init()
 {
     mat4 proj;
-    scale = 4 * (float)(window_get().y + window_get().y) / 64; // just 4*a, where a is the side of the the board.
+    scale = 4 * (float)(2*window_get().y) / 64; // just 4*a, where a is the side of the the board.
     struct VBO coordinate_vertex;
     struct Piece self = {
         .shader_vertex = shader_create("../resources/shaders/base.vs", "../resources/shaders/base.fs"),
@@ -163,22 +179,26 @@ struct Piece piece_init()
  * 
  * @param self 
  */
-int square_type = 0;
+int SQUARE_TYPE = 0;
 void piece_render(struct Piece self)
 {
     shader_bind(self.shader_vertex);
     for(int i = 0;i < PIECE_LIMITS;i += 1)
     {
         vbo_data(self.buffer_vertex[i], buffer_position_data[i], sizeof(buffer_position_data[i]));
-        if(glfwGetMouseButton(window_get().handle, GLFW_MOUSE_BUTTON_LEFT) && is_selected_squared(buffer_position_data,i,0.0,0.0,scale))
+        if(glfwGetMouseButton(window_get().handle, GLFW_MOUSE_BUTTON_LEFT) && is_select_squared(buffer_position_data,i,0.0,0.0,scale))
         {
-            square_type = 1;
+            SQUARE_TYPE = 1;
+        }
+        if(glfwGetMouseButton(window_get().handle, GLFW_MOUSE_BUTTON_LEFT) && is_valid_squared(buffer_position_data,i,0.0,0.0,scale))
+        {
+            SQUARE_TYPE = 2;
         }
         else  
         {
-            square_type = 0;
+            SQUARE_TYPE = 0;
         };
-        glUniform1f(glGetUniformLocation(self.shader_vertex.handle,"square_type"),square_type);
+        glUniform1f(glGetUniformLocation(self.shader_vertex.handle,"square_type"),SQUARE_TYPE);
         if(glm_max(0,i) <= 7) {
             // Mayor White pieces
             texture_bind(self.texture_vertex[(i < 5) ? i : (7 - i)]);
