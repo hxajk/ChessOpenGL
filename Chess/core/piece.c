@@ -1,4 +1,5 @@
-#include "Chess/gfx/gfx.h"
+/// @file piece.c
+
 #include <Chess/core/piece.h>
 
 #define PIECE_LIMITS 32
@@ -6,6 +7,8 @@
 #define IMAGES_LIMITS 12
 #define WHITE_PAWN_INDEX 5
 #define BLACK_PAWN_INDEX 11
+float buffer_position_data[32][8] = {{0}};
+float scale;
 
 /*
     SECTIONS:
@@ -53,6 +56,23 @@ void set_position_data(float buffer_position_data[PIECE_LIMITS][POSITIONS_PER_PI
         current_position[0] = 0;
         current_position[1] = 1;
 };
+bool is_selected_squared(float buffer_position_data[PIECE_LIMITS][POSITIONS_PER_PIECE],int i, int scale, double w, double h)
+{
+        glfwGetCursorPos(window_get().handle, &w, &h);
+
+        h = glm_max(0,h);   
+        w = glm_max(0,w);
+
+        h = fabs(h - 576);
+
+        if(buffer_position_data[i][1] >= h && buffer_position_data[i][3] >= h  && buffer_position_data[i][5] <= h && buffer_position_data[i][7] <= h &&
+        buffer_position_data[i][0] <= w && buffer_position_data[i][2]  >= w && buffer_position_data[i][4] >= w && buffer_position_data[i][6] <= w && w <= window_get().y)
+        {
+            return true;
+        };
+
+        return false;
+};
 
 /**
  * @brief Initalize piece, create chess pieces
@@ -63,7 +83,7 @@ void set_position_data(float buffer_position_data[PIECE_LIMITS][POSITIONS_PER_PI
 struct Piece piece_init()
 {
     mat4 proj;
-    float scale = 4 * (float)(window_get().y + window_get().y) / 64; // just 4*a, where a is the side of the the board.
+    scale = 4 * (float)(window_get().y + window_get().y) / 64; // just 4*a, where a is the side of the the board.
     struct VBO coordinate_vertex;
     struct Piece self = {
         .shader_vertex = shader_create("../resources/shaders/base.vs", "../resources/shaders/base.fs"),
@@ -71,7 +91,6 @@ struct Piece piece_init()
             0,1,2,2,3,0
         }
     };
-    float buffer_position_data[32][8] = {{0}};
     // Initialize major white pieces
     set_position_data(buffer_position_data,0, 8, 1, scale);
     // Initialize white pawn pieces
@@ -108,14 +127,14 @@ struct Piece piece_init()
     glm_ortho(0, (float)window_get().x, 0, (float)window_get().y, -1, 1, proj);
 
     for(int i = 0;i < PIECE_LIMITS;i++){
-        self.buffer_vertex[i] = vbo_create(GL_ARRAY_BUFFER, false);
+        self.buffer_vertex[i] = vbo_create(GL_ARRAY_BUFFER, true);
         self.array_vertex[i] = vao_create();
     }
     for(int i = 0;i < IMAGES_LIMITS;i++){
         self.texture_vertex[i] = texture_create(image_paths[i]);  
     };
 
-    coordinate_vertex = vbo_create(GL_ARRAY_BUFFER,false);
+    coordinate_vertex = vbo_create(GL_ARRAY_BUFFER, true);
     self.index_vertex = vbo_create(GL_ELEMENT_ARRAY_BUFFER, false);
 
     for(int i = 0;i < PIECE_LIMITS;i += 1)
@@ -144,12 +163,22 @@ struct Piece piece_init()
  * 
  * @param self 
  */
-
+int square_type = 0;
 void piece_render(struct Piece self)
 {
     shader_bind(self.shader_vertex);
     for(int i = 0;i < PIECE_LIMITS;i += 1)
     {
+        vbo_data(self.buffer_vertex[i], buffer_position_data[i], sizeof(buffer_position_data[i]));
+        if(glfwGetMouseButton(window_get().handle, GLFW_MOUSE_BUTTON_LEFT) && is_selected_squared(buffer_position_data,i,0.0,0.0,scale))
+        {
+            square_type = 1;
+        }
+        else  
+        {
+            square_type = 0;
+        };
+        glUniform1f(glGetUniformLocation(self.shader_vertex.handle,"square_type"),square_type);
         if(glm_max(0,i) <= 7) {
             // Mayor White pieces
             texture_bind(self.texture_vertex[(i < 5) ? i : (7 - i)]);
