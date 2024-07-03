@@ -20,7 +20,7 @@ extern "C" {
  * @return false 
  */
 
-static inline bool glms_aabb_pieces(float buffer_position_data[256][8],int i, int x, int y, int window_y) {
+static inline bool glms_aabb_events(float buffer_position_data[256][8],int i, int x, int y, int window_y) {
   if (
       x >= 0 && 
       buffer_position_data[i][1] >= y && buffer_position_data[i][3] >= y && // y - (UP LEFT - UP RIGHT) 

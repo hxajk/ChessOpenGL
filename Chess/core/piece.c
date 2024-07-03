@@ -2,11 +2,7 @@
 
 #include <Chess/core/piece.h>
 
-#define PIECE_LIMITS 32
-#define POSITIONS_PER_PIECE 8
-#define IMAGES_LIMITS 12
-#define WHITE_PAWN_INDEX 5
-#define BLACK_PAWN_INDEX 11
+
 float buffer_position_data[32][8] = {{0}};
 float scale;
 // TODO: Implement valid move hightlight
@@ -55,39 +51,6 @@ static void set_position_data(float buffer_position_data[PIECE_LIMITS][POSITIONS
         }
         current_position[0] = 0;
         current_position[1] = 1;
-};
-
-static bool is_select_squared(float buffer_position_data[PIECE_LIMITS][POSITIONS_PER_PIECE],int i,  double w, double h, int scale)
-{
-        glfwGetCursorPos(window_get().handle, &w, &h);
-
-        h = glm_max(0,h);   
-        w = glm_max(0,w);
-
-        h = fabs(h - 576);
-
-        if(glms_aabb_pieces(buffer_position_data, i, w, h, window_get().y)){
-            return true;
-        };
-
-        return false;
-};
-
-static bool is_valid_squared(float buffer_position_data[PIECE_LIMITS][POSITIONS_PER_PIECE],int i,  double w, double h, int scale){
-
-        glfwGetCursorPos(window_get().handle, &w, &h);
-
-        h = glm_max(0,h);   
-        w = glm_max(0,w);
-
-        h = fabs(h - 576);
-
-
-        if(glms_aabb_pieces(buffer_position_data, i, w, h, window_get().y)){
-            /* printf("%d \n", i); */
-            return true;
-        };
-    return false;
 };
 
 /**
@@ -185,13 +148,9 @@ void piece_render(struct Piece self)
     for(int i = 0;i < PIECE_LIMITS;i += 1)
     {
         vbo_data(self.buffer_vertex[i], buffer_position_data[i], sizeof(buffer_position_data[i]));
-        if(glfwGetMouseButton(window_get().handle, GLFW_MOUSE_BUTTON_LEFT) && is_select_squared(buffer_position_data,i,0.0,0.0,scale))
+        if(glfwGetMouseButton(window_get().handle, GLFW_MOUSE_BUTTON_LEFT) && is_select_pieces(buffer_position_data,i,0.0,0.0,scale))
         {
             SQUARE_TYPE = 1;
-        }
-        if(glfwGetMouseButton(window_get().handle, GLFW_MOUSE_BUTTON_LEFT) && is_valid_squared(buffer_position_data,i,0.0,0.0,scale))
-        {
-            SQUARE_TYPE = 2;
         }
         else  
         {

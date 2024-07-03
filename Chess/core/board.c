@@ -2,8 +2,6 @@
 
 #include <Chess/core/board.h>
 
-#define BOARD_SIZE 64
-#define POSITIONS_PER_SQUARE 8
 
 #define WHITE_SQUARE 0.93333334, 0.84705883, 0.7529412, 1.0,\
                     0.93333334, 0.84705883, 0.7529412 , 1.0,\
@@ -14,6 +12,11 @@
                     0.67058825, 0.47843137, 0.39607844, 1.0,\
                     0.67058825, 0.47843137, 0.39607844, 1.0,\
                     0.67058825, 0.47843137, 0.39607844, 1.0,\
+
+static float buffer_position_data[64][8] = {{0}};
+static float scale;
+
+ 
 
 static void set_position_data(float buffer_position_data[BOARD_SIZE][POSITIONS_PER_SQUARE], int start, int end, int y, float scale){
     vec2 current_position = {0, 1};
@@ -40,7 +43,6 @@ static void set_position_data(float buffer_position_data[BOARD_SIZE][POSITIONS_P
  */
 
 struct Board board_init(){
-    float buffer_position_data[64][8] = {{0}};
     float buffer_coordinate_data[8] = {
         0,1,
         1,1,
@@ -55,7 +57,6 @@ struct Board board_init(){
            DARK_SQUARE
         },
     };
-    float scale;
     mat4 proj;
     scale = 4 * (float)(2 * window_get().y) / 64;
     struct VBO coordinate_vertex;
@@ -129,12 +130,21 @@ struct Board board_init(){
  * 
  * @param self 
  */
-
+static int SQUARE_TYPE = 0;
 void board_render(struct Board self){
     glClear(GL_COLOR_BUFFER_BIT);
     shader_bind(self.shader_vertex);
     for(int i = 0;i < BOARD_SIZE;i += 1)
     {
+        if(glfwGetMouseButton(window_get().handle, GLFW_MOUSE_BUTTON_LEFT) && is_possible_moves(buffer_position_data, i, 0.0, 0.0, scale))
+        {
+            SQUARE_TYPE = 1;
+        }
+        else  
+        {
+            SQUARE_TYPE = 0;
+        };
+        glUniform1f(glGetUniformLocation(self.shader_vertex.handle,"square_type"),SQUARE_TYPE);
         vao_bind(self.array_vertex[i]);
         vbo_bind(self.index_vertex);
         glDrawElements(GL_TRIANGLES, sizeof(self.index_data) / sizeof(unsigned int), GL_UNSIGNED_INT, 0 );
