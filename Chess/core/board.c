@@ -96,7 +96,6 @@ struct Board board_init(){
 
     for(int i = 0;i < BOARD_SIZE;i += 1)
     {
-        vao_bind(self.array_vertex[i]);
         vbo_data(self.buffer_vertex[i], buffer_position_data[i], sizeof(buffer_position_data[i]));
     };
     

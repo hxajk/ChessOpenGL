@@ -155,7 +155,6 @@ struct Piece piece_init()
 
     for(int i = 0;i < PIECE_LIMITS;i += 1)
     {
-        vao_bind(self.array_vertex[i]);
         vbo_data(self.buffer_vertex[i], buffer_position_data[i], sizeof(buffer_position_data[i]));
     };
     vbo_data(coordinate_vertex, buffer_coordinate_data, sizeof(buffer_coordinate_data));
