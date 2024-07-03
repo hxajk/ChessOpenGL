@@ -2,7 +2,15 @@
 
 #include <Chess/core/rules.h>
 
-bool is_select_pieces(float (*buffer_position_data)[8], int piece_index, double w, double h, int scale)
+static struct Board board; static struct Piece piece;
+static int board_index;    static int piece_index;
+
+bool is_select_possible_move(double w, double h)
+{
+        return true;
+};
+
+bool is_select_pieces(struct Piece self, int i, double w, double h)
 {
          glfwGetCursorPos(window_get().handle, &w, &h);
 
@@ -11,14 +19,13 @@ bool is_select_pieces(float (*buffer_position_data)[8], int piece_index, double 
 
         h = fabs(h - 576);
 
-        if(glms_aabb_events(buffer_position_data, piece_index, w, h, window_get().y)){
-            return true;
-        };
+        piece = self;
+        piece_index = i;
 
         return false;
 };
 
-bool is_possible_moves(float (*buffer_position_data)[8], int board_index, double w, double h, int scale)
+bool is_possible_moves(struct Board self, int i, double w, double h)
 {
          glfwGetCursorPos(window_get().handle, &w, &h);
 
@@ -27,9 +34,8 @@ bool is_possible_moves(float (*buffer_position_data)[8], int board_index, double
 
         h = fabs(h - 576);
 
-        if(glms_aabb_events(buffer_position_data, board_index, w, h, window_get().y)){
-            return true;
-        };
+        board = self;
+        board_index = i;
 
         return false;
 };

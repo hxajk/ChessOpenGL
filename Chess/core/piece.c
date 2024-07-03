@@ -1,11 +1,6 @@
 /// @file piece.c
 
 #include <Chess/core/piece.h>
-
-
-float buffer_position_data[32][8] = {{0}};
-float scale;
-// TODO: Implement valid move hightlight
 /*
     SECTIONS:
     <data>[0]  ->  White Rook
@@ -25,25 +20,31 @@ float scale;
     <data>[11] (8 times)  ->  Black Pawn
  */
 
+struct Piece self = {
+        .index_data = {
+            0,1,2,2,3,0
+    }
+};
+
 /**
  * @brief Set the position data object
  * The purpose of this function is to represent position as the square.
- * @param buffer_position_data 
+ * @param self.buffer_position_data 
  * @param start 
  * @param end 
  * @param y 
- * @param scale 
+ * @param self.scale 
  */
-
+// NOTES: UP LEFT -> UP RIGHT -> DOWN RIGHT -> DOWN LEFT (CLOCKWISE ORDER).
 static void set_position_data(float buffer_position_data[PIECE_LIMITS][POSITIONS_PER_PIECE], int start, int end, int y, float scale){
     vec2 current_position = {0, 1};
     int i,j;
     for (i = start; i < end; i++) {
-            for (j = 0; j < POSITIONS_PER_PIECE; j++) {
+            for (j = 0; j < POSITIONS_PER_PIECE; j++){
                 if ((j & 1) == 1) {
-                    buffer_position_data[i][j] = scale * ((j <= 3) ? y : y - 1); // If y <= 3, draw UP right, else draw UP down
+                    buffer_position_data[i][j] = scale*((j <= 3) ? y : y - 1);
                 } else {
-                    buffer_position_data[i][j] = scale * ((j == 0 || j == 6) ? current_position[0] : current_position[1]);
+                    buffer_position_data[i][j] = scale*((j == 0 || j == 6) ? current_position[0] : current_position[1]);
                 }
             }
             current_position[0]++;
@@ -61,24 +62,6 @@ static void set_position_data(float buffer_position_data[PIECE_LIMITS][POSITIONS
 
 struct Piece piece_init()
 {
-    mat4 proj;
-    scale = 4 * (float)(2*window_get().y) / 64; // just 4*a, where a is the side of the the board.
-    struct VBO coordinate_vertex;
-    struct Piece self = {
-        .shader_vertex = shader_create("../resources/shaders/base.vs", "../resources/shaders/base.fs"),
-        .index_data = {
-            0,1,2,2,3,0
-        }
-    };
-    // Initialize major white pieces
-    set_position_data(buffer_position_data,0, 8, 1, scale);
-    // Initialize white pawn pieces
-    set_position_data(buffer_position_data,8, 16, 2, scale);
-    // Initialize major black pieces
-    set_position_data(buffer_position_data,16, 24, 8, scale);
-    // Initialize black pawn pieces
-    set_position_data(buffer_position_data,24, 32, 7, scale);
-
     float buffer_coordinate_data[8] = {
         0,1,
         1,1,
@@ -103,6 +86,19 @@ struct Piece piece_init()
         "../resources/texture/black_pawn.png",
     };
 
+    mat4 proj;
+    struct VBO coordinate_vertex;
+    self.shader_vertex = shader_create("../resources/shaders/base.vs", "../resources/shaders/base.fs"),
+    self.scale = 4 * (float)(2*window_get().y) / 64;
+    // Initialize major white pieces
+    set_position_data(self.buffer_position_data,0, 8, 1, self.scale);
+    // Initialize white pawn pieces
+    set_position_data(self.buffer_position_data,8, 16, 2, self.scale);
+    // Initialize major black pieces
+    set_position_data(self.buffer_position_data,16, 24, 8, self.scale);
+    // Initialize black pawn pieces
+    set_position_data(self.buffer_position_data,24, 32, 7, self.scale);
+
     glm_ortho(0, (float)window_get().x, 0, (float)window_get().y, -1, 1, proj);
 
     for(int i = 0;i < PIECE_LIMITS;i++){
@@ -116,15 +112,13 @@ struct Piece piece_init()
     coordinate_vertex = vbo_create(GL_ARRAY_BUFFER, true);
     self.index_vertex = vbo_create(GL_ELEMENT_ARRAY_BUFFER, false);
 
-    for(int i = 0;i < PIECE_LIMITS;i += 1)
-    {
-        vbo_data(self.buffer_vertex[i], buffer_position_data[i], sizeof(buffer_position_data[i]));
+    for(int i = 0;i < PIECE_LIMITS;i++){
+        vbo_data(self.buffer_vertex[i], self.buffer_position_data[i], sizeof(self.buffer_position_data[i]));
     };
     vbo_data(coordinate_vertex, buffer_coordinate_data, sizeof(buffer_coordinate_data));
     vbo_data(self.index_vertex, (unsigned int*)self.index_data, sizeof(self.index_data));
 
-    for(int i = 0;i < PIECE_LIMITS;i += 1)
-    {
+    for(int i = 0;i < PIECE_LIMITS;i++){
         vao_attrib(self.array_vertex[i], self.buffer_vertex[i], 0, 2, GL_FLOAT, 0, 0);
         vao_attrib(self.array_vertex[i], coordinate_vertex, 1, 2, GL_FLOAT, 0, 0);
     };
@@ -145,15 +139,12 @@ int SQUARE_TYPE = 0;
 void piece_render(struct Piece self)
 {
     shader_bind(self.shader_vertex);
-    for(int i = 0;i < PIECE_LIMITS;i += 1)
-    {
-        vbo_data(self.buffer_vertex[i], buffer_position_data[i], sizeof(buffer_position_data[i]));
-        if(glfwGetMouseButton(window_get().handle, GLFW_MOUSE_BUTTON_LEFT) && is_select_pieces(buffer_position_data,i,0.0,0.0,scale))
-        {
+    for(int i = 0;i < PIECE_LIMITS;i ++){
+        vbo_data(self.buffer_vertex[i], self.buffer_position_data[i], sizeof(self.buffer_position_data[i]));
+        if(glfwGetMouseButton(window_get().handle, GLFW_MOUSE_BUTTON_LEFT) && is_select_pieces(self,i,0.0,0.0)){
             SQUARE_TYPE = 1;
         }
-        else  
-        {
+        else{
             SQUARE_TYPE = 0;
         };
         glUniform1f(glGetUniformLocation(self.shader_vertex.handle,"square_type"),SQUARE_TYPE);
@@ -189,8 +180,7 @@ void piece_destroy(struct Piece self)
 {
     shader_destroy(self.shader_vertex);
     vbo_destroy(self.index_vertex);
-    for(int i = 0;i < PIECE_LIMITS;i += 1)
-    {
+    for(int i = 0;i < PIECE_LIMITS;i++){
         vbo_destroy(self.buffer_vertex[i]);
         vao_destroy(self.array_vertex[i]);
     };

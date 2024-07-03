@@ -3,12 +3,12 @@
 extern "C" {
 #endif
 
-
 #include <Chess/gfx/vao.h>
 #include <Chess/gfx/vbo.h>
 #include <Chess/gfx/shader.h>
 #include <Chess/gfx/texture.h>
 #include <Chess/gfx/window.h>
+
 #include "Chess/util/aabb.h"
 
 #include <Chess/core/rules.h>
@@ -27,8 +27,10 @@ struct Piece {
   struct  VAO array_vertex[32];
   struct Texture texture_vertex[12];
 
-  
+  float buffer_position_data[32][8];
   unsigned int index_data[6];
+
+  float scale;
 };
 
 struct Piece piece_init();
