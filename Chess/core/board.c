@@ -17,6 +17,7 @@ static struct Board self = {
             0,1,2,2,3,0
         }
     };
+static int SQUARE_TYPE = 0;
 
 
 // NOTES: UP LEFT -> UP RIGHT -> DOWN RIGHT -> DOWN LEFT (CLOCKWISE ORDER).
@@ -28,7 +29,7 @@ static void set_position_data(float buffer_position_data[BOARD_SIZE][POSITIONS_P
                 if ((j & 1) == 1) {
                     buffer_position_data[i][j] = scale*((j <= 3) ? y : y - 1); 
                 } else {
-                    buffer_position_data[i][j] = scale*((j == 0 || j == 6) ? current_position[0] : current_position[1]);
+                    buffer_position_data[i][j] = scale*((j == 0 ||  j == 6) ? current_position[0] : current_position[1]);
                 }
             }
             current_position[0]++;
@@ -36,6 +37,20 @@ static void set_position_data(float buffer_position_data[BOARD_SIZE][POSITIONS_P
         }
         current_position[0] = 0;
         current_position[1] = 1;
+};
+
+// NOTES: ODD & ONE = False, EVEN & ONE = True
+static void set_colour_data(struct VBO* colour_vertex, float (*buffer_colour_data)[16]){
+    for(int i = 0;i < 8;i++){
+        for(int j = 0;j < 8;j ++){
+            if((i + j) & 1){
+                vbo_data(colour_vertex[i*8+j], buffer_colour_data[0], sizeof(buffer_colour_data[0]));
+            }
+            else if(!((i+j) & 1)){  
+                vbo_data(colour_vertex[i*8+j], buffer_colour_data[1], sizeof(buffer_colour_data[1]));
+            }
+        };
+    };
 };
 
 /**
@@ -55,12 +70,8 @@ struct Board board_init(){
         0,0
     };
     float buffer_color_data[2][16] = {
-        {
-           WHITE_SQUARE
-        },
-        {
-           DARK_SQUARE
-        },
+        { WHITE_SQUARE },
+        { DARK_SQUARE  },
     };
 
     self.shader_vertex = shader_create("../resources/shaders/board.vs", "../resources/shaders/board.fs");
@@ -84,35 +95,23 @@ struct Board board_init(){
 
     glm_ortho(0, (float)window_get().x, 0, (float)window_get().y, -1, 1, proj);
 
-    for(int i = 0;i < BOARD_SIZE;i++){
-        self.buffer_vertex[i] = vbo_create(GL_ARRAY_BUFFER, false);
-        self.array_vertex[i] = vao_create();
-        color_vertex[i] = vbo_create(GL_ARRAY_BUFFER, false);
+    for(self.index = 0;self.index < BOARD_SIZE;self.index++){
+        self.buffer_vertex[self.index] = vbo_create(GL_ARRAY_BUFFER, false);
+        self.array_vertex[self.index] = vao_create();
+        color_vertex[self.index] = vbo_create(GL_ARRAY_BUFFER, false);
     }
 
     self.index_vertex = vbo_create(GL_ELEMENT_ARRAY_BUFFER, false);
 
-    for(int i = 0;i < BOARD_SIZE;i += 1)
-    {
-        vbo_data(self.buffer_vertex[i], self.buffer_position_data[i], sizeof(self.buffer_position_data[i]));
-    };
-    // NOTES: ODD & ONE = False, EVEN & ONE = True
-    for(int i = 0;i < 8;i++){
-        for(int j = 0;j < 8;j ++){
-            if((i + j) & 1){
-                vbo_data(color_vertex[i*8+j], buffer_color_data[0], sizeof(buffer_color_data[0]));
-            }
-            else if(!((i+j) & 1)){  
-                vbo_data(color_vertex[i*8+j], buffer_color_data[1], sizeof(buffer_color_data[1]));
-            }
-        };
+    for(self.index = 0;self.index < BOARD_SIZE;self.index++){
+        vbo_data(self.buffer_vertex[self.index], self.buffer_position_data[self.index], sizeof(self.buffer_position_data[self.index]));
     };
     vbo_data(self.index_vertex, (unsigned int*)self.index_data, sizeof(self.index_data));
+    set_colour_data(color_vertex, buffer_color_data);
 
-    for(int i = 0;i < BOARD_SIZE;i += 1)
-    {
-        vao_attrib(self.array_vertex[i], self.buffer_vertex[i], 0, 2, GL_FLOAT, 0, 0);
-        vao_attrib(self.array_vertex[i], color_vertex[i], 1, 4, GL_FLOAT, 0, 0);
+    for(self.index = 0;self.index < BOARD_SIZE;self.index++){
+        vao_attrib(self.array_vertex[self.index], self.buffer_vertex[self.index], 0, 2, GL_FLOAT, 0, 0);
+        vao_attrib(self.array_vertex[self.index], color_vertex[self.index], 1, 4, GL_FLOAT, 0, 0);
     };
 
     shader_bind(self.shader_vertex);
@@ -125,12 +124,11 @@ struct Board board_init(){
  * 
  * @param self 
  */
-static int SQUARE_TYPE = 0;
 void board_render(struct Board self){
     glClear(GL_COLOR_BUFFER_BIT);
     shader_bind(self.shader_vertex);
-    for(int i = 0;i < BOARD_SIZE;i++){
-        if(glfwGetMouseButton(window_get().handle, GLFW_MOUSE_BUTTON_LEFT) && is_possible_moves(self, i, 0.0, 0.0)){
+    for(self.index = 0;self.index < BOARD_SIZE;self.index++){
+        if(glfwGetMouseButton(window_get().handle, GLFW_MOUSE_BUTTON_LEFT) && is_possible_moves(self, 0.0, 0.0)){
             SQUARE_TYPE = 1;
         }
         else  
@@ -138,7 +136,7 @@ void board_render(struct Board self){
             SQUARE_TYPE = 0;
         };
         glUniform1f(glGetUniformLocation(self.shader_vertex.handle,"square_type"),SQUARE_TYPE);
-        vao_bind(self.array_vertex[i]);
+        vao_bind(self.array_vertex[self.index]);
         vbo_bind(self.index_vertex);
         glDrawElements(GL_TRIANGLES, sizeof(self.index_data) / sizeof(unsigned int), GL_UNSIGNED_INT, 0 );
     };
@@ -157,8 +155,8 @@ void board_destroy(struct Board self)
     
     vbo_destroy(self.index_vertex);
 
-    for(int i = 0;i < BOARD_SIZE;i++){
-        vao_destroy(self.array_vertex[i]);
-        vbo_destroy(self.buffer_vertex[i]);
+    for(self.index = 0;self.index < BOARD_SIZE;self.index++){
+        vao_destroy(self.array_vertex[self.index]);
+        vbo_destroy(self.buffer_vertex[self.index]);
     };
 };

@@ -26,6 +26,7 @@ struct Board {
   unsigned int index_data[6];
 
   float scale;
+  unsigned int index;
 };
 
 struct Board board_init();

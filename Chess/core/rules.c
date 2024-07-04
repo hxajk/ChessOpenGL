@@ -1,16 +1,17 @@
 /// @file rules.c 
 
 #include <Chess/core/rules.h>
+#include <stdio.h>
 
 static struct Board board; static struct Piece piece;
-static int board_index;    static int piece_index;
 
 bool is_select_possible_move(double w, double h)
 {
-        return true;
+        printf("%d \n", board.index);
+        return false;
 };
 
-bool is_select_pieces(struct Piece self, int i, double w, double h)
+bool is_select_pieces(struct Piece self, double w, double h)
 {
          glfwGetCursorPos(window_get().handle, &w, &h);
 
@@ -20,12 +21,16 @@ bool is_select_pieces(struct Piece self, int i, double w, double h)
         h = fabs(h - 576);
 
         piece = self;
-        piece_index = i;
+
+        if(is_select_possible_move(w, h))
+        {
+                return true;
+        };
 
         return false;
 };
 
-bool is_possible_moves(struct Board self, int i, double w, double h)
+bool is_possible_moves(struct Board self, double w, double h)
 {
          glfwGetCursorPos(window_get().handle, &w, &h);
 
@@ -35,7 +40,11 @@ bool is_possible_moves(struct Board self, int i, double w, double h)
         h = fabs(h - 576);
 
         board = self;
-        board_index = i;
+
+        if(is_select_possible_move(w, h))
+        {
+                return true;
+        };
 
         return false;
 };

@@ -17,8 +17,8 @@ extern "C" {
 
 #include <cglm/cglm.h>
 
-bool is_select_pieces(struct Piece self,int piece_index,  double w, double h);
-bool is_possible_moves(struct Board self ,int board_index,  double w, double h);
+bool is_select_pieces(struct Piece self,  double w, double h);
+bool is_possible_moves(struct Board self,  double w, double h);
 
 #endif
 
