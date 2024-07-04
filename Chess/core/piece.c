@@ -122,7 +122,7 @@ void piece_render(struct Piece self)
     shader_bind(self.shader_vertex);
     for(self.index = 0;self.index < PIECE_LIMITS;self.index++){
         vbo_data(self.buffer_vertex[self.index], self.buffer_position_data[self.index], sizeof(self.buffer_position_data[self.index]));
-        if(glfwGetMouseButton(window_get().handle, GLFW_MOUSE_BUTTON_LEFT) && is_select_pieces(self,0.0,0.0)){
+        if(is_select_pieces(self,0.0,0.0)){
             SQUARE_TYPE = 1;
         }
         else{

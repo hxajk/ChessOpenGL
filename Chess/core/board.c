@@ -1,5 +1,6 @@
 /// @file board.c
 
+#include "Chess/util/util.h"
 #include <Chess/core/board.h>
 
 #define WHITE_SQUARE 0.93333334, 0.84705883, 0.7529412,1.0,  \
@@ -11,6 +12,9 @@
                     0.67058825, 0.47843137, 0.39607844, 1.0, \
                     0.67058825, 0.47843137, 0.39607844, 1.0, \
                     0.67058825, 0.47843137, 0.39607844, 1.0, \
+
+#define RANK 8
+#define FILE 8
 
 static struct Board self = {
         .index_data = {
@@ -41,13 +45,13 @@ static void set_position_data(float buffer_position_data[BOARD_SIZE][POSITIONS_P
 
 // NOTES: ODD & ONE = False, EVEN & ONE = True
 static void set_colour_data(struct VBO* colour_vertex, float (*buffer_colour_data)[16]){
-    for(int i = 0;i < 8;i++){
-        for(int j = 0;j < 8;j ++){
+    for(int i = 0;i < RANK;i++){
+        for(int j = 0;j < FILE;j ++){
             if((i + j) & 1){
-                vbo_data(colour_vertex[i*8+j], buffer_colour_data[0], sizeof(buffer_colour_data[0]));
+                vbo_data(colour_vertex[i*RANK+j], buffer_colour_data[0], sizeof(buffer_colour_data[0]));
             }
             else if(!((i+j) & 1)){  
-                vbo_data(colour_vertex[i*8+j], buffer_colour_data[1], sizeof(buffer_colour_data[1]));
+                vbo_data(colour_vertex[i*RANK+j], buffer_colour_data[1], sizeof(buffer_colour_data[1]));
             }
         };
     };
@@ -62,7 +66,7 @@ static void set_colour_data(struct VBO* colour_vertex, float (*buffer_colour_dat
 struct Board board_init(){
     mat4 proj;
     struct VBO coordinate_vertex;
-    struct VBO color_vertex[64];
+    struct VBO color_vertex[BOARD_SIZE];
     float buffer_coordinate_data[8] = {
         0,1,
         1,1,
@@ -75,23 +79,11 @@ struct Board board_init(){
     };
 
     self.shader_vertex = shader_create("../resources/shaders/board.vs", "../resources/shaders/board.fs");
-    self.scale = 4 * (float)(2 * window_get().y) / 64;
-    // Rank 1
-    set_position_data(self.buffer_position_data,0,  8,    1, self.scale);
-    // Rank 2
-    set_position_data(self.buffer_position_data,8,  16,   2, self.scale);
-    // Rank 3
-    set_position_data(self.buffer_position_data,16, 24,   3, self.scale);
-    // Rank 4
-    set_position_data(self.buffer_position_data,24, 32,   4, self.scale);
-    // Rank 5
-    set_position_data(self.buffer_position_data,32, 40,   5, self.scale);
-    // Rank 6
-    set_position_data(self.buffer_position_data,40, 48,   6, self.scale);
-    // Rank 7
-    set_position_data(self.buffer_position_data,48, 56,   7, self.scale);
-    // Rank 8
-    set_position_data(self.buffer_position_data,56, 64,   8, self.scale);
+    self.scale = 4 * (float)(2 * window_get().y) / BOARD_SIZE;
+    
+    for(self.index = 1;self.index <= RANK;self.index++){
+        set_position_data(self.buffer_position_data, (self.index-1)*RANK, (self.index)*RANK, self.index, self.scale);
+    }
 
     glm_ortho(0, (float)window_get().x, 0, (float)window_get().y, -1, 1, proj);
 
@@ -128,7 +120,7 @@ void board_render(struct Board self){
     glClear(GL_COLOR_BUFFER_BIT);
     shader_bind(self.shader_vertex);
     for(self.index = 0;self.index < BOARD_SIZE;self.index++){
-        if(glfwGetMouseButton(window_get().handle, GLFW_MOUSE_BUTTON_LEFT) && is_possible_moves(self, 0.0, 0.0)){
+        if(is_possible_moves(self, 0.0, 0.0)){
             SQUARE_TYPE = 1;
         }
         else  
