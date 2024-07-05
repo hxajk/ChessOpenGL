@@ -7,21 +7,49 @@
 static struct Window self;
 
 /**
- * @brief Handle, and update key related per time.
+ * @brief Handle mouse call back per time.
  * 
  * @param handle 
- * @param key 
- * @param scancode 
+ * @param button 
  * @param action 
  * @param mods 
  */
 
-static void key_callback(GLFWwindow *handle, int key, int scancode, int action, int mods)
+static void mouse_callback(GLFWwindow* handle, int button, int action, int mods)
 {
-    if(key == GLFW_KEY_SPACE)
+    if(button < 0) 
     {
-        glfwSetWindowShouldClose(self.handle, true);
+        return;
     };
+
+    switch (action) 
+    {
+        case GLFW_PRESS:
+            self.mouse.buttons[button].down = true;
+            break;
+        case GLFW_RELEASE:
+            self.mouse.buttons[button].pressed = true;
+            break;
+        default:
+            break;
+    }
+};
+
+static void key_callback(GLFWwindow *handle, int key, int scancode, int action, int mods){
+    if (key < 0) {
+        return;
+    }
+
+    switch (action) {
+        case GLFW_PRESS:
+            self.keyboard.keys[key].down = true;
+            break;
+        case GLFW_RELEASE:
+            self.keyboard.keys[key].down = false;
+            break;
+        default:
+            break;
+    }
 };
 
 
@@ -55,6 +83,8 @@ struct Window window_init(int x, int y, const char* title)
 
     glfwMakeContextCurrent(self.handle);
 
+    glfwSetMouseButtonCallback(self.handle, mouse_callback);
+
     glfwSetKeyCallback(self.handle, key_callback);
 
     if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
@@ -79,9 +109,8 @@ struct Window window_init(int x, int y, const char* title)
 
 struct Window window_get()
 {
-    if(self.handle == NULL)
-    {
-        printf("error: window handle cannot be a nullptr!\n");
+    if(self.handle == NULL) {
+        printf("error window handle cannot be a nullptr!\n");
         assert(false);
     };
     return self;

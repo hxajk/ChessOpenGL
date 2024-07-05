@@ -6,11 +6,24 @@ extern "C" {
 #ifndef WINDOW_H
 #define WINDOW_H
 
+struct Button {
+    bool down, last, last_tick, pressed, pressed_tick;
+};
 
+struct Mouse {
+    struct Button buttons[GLFW_MOUSE_BUTTON_LAST];
+};
+
+struct KeyBoard {
+    struct Button keys[GLFW_KEY_LAST];
+};
 
 struct Window {
     GLFWwindow* handle;
     float x,y;
+
+    struct Mouse mouse;
+    struct KeyBoard keyboard;
 };
 
 struct Window window_init(int x, int y, const  char* title);
