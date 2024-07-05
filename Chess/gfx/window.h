@@ -12,6 +12,7 @@ struct Button {
 
 struct Mouse {
     struct Button buttons[GLFW_MOUSE_BUTTON_LAST];
+    double x,y;
 };
 
 struct KeyBoard {

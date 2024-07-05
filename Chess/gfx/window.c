@@ -35,6 +35,7 @@ static void mouse_callback(GLFWwindow* handle, int button, int action, int mods)
         default:
             break;
     }
+    glfwGetCursorPos(self.handle, &self.mouse.x, &self.mouse.y);
 };
 
 /**
