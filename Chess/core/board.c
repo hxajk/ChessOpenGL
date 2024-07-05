@@ -23,6 +23,15 @@ static struct Board self = {
     };
 static int SQUARE_TYPE = 0;
 
+/**
+ * @brief Set the position data object
+ * The purpose of this function is to represent position as the square.
+ * @param self.buffer_position_data 
+ * @param start 
+ * @param end 
+ * @param y 
+ * @param self.scale 
+ */
 
 // NOTES: UP LEFT -> UP RIGHT -> DOWN RIGHT -> DOWN LEFT (CLOCKWISE ORDER).
 static void set_position_data(float buffer_position_data[BOARD_SIZE][POSITIONS_PER_SQUARE], int start, int end, int y, float scale){
@@ -43,6 +52,15 @@ static void set_position_data(float buffer_position_data[BOARD_SIZE][POSITIONS_P
         current_position[1] = 1;
 };
 
+/**
+ * @brief Set the colour data object
+ * The purpose of this function is to represent position as the square.
+ * @param self.buffer_position_data 
+ * @param start 
+ * @param end 
+ * @param y 
+ * @param self.scale 
+ */
 // NOTES: ODD & ONE = False, EVEN & ONE = True
 static void set_colour_data(struct VBO* colour_vertex, float (*buffer_colour_data)[16]){
     for(int i = 0;i < RANK;i++){

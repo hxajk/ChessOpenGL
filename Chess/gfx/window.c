@@ -26,14 +26,26 @@ static void mouse_callback(GLFWwindow* handle, int button, int action, int mods)
     {
         case GLFW_PRESS:
             self.mouse.buttons[button].down = true;
+            self.mouse.buttons[button].up = false;
             break;
         case GLFW_RELEASE:
-            self.mouse.buttons[button].pressed = true;
+            self.mouse.buttons[button].down = false;
+            self.mouse.buttons[button].up = true;
             break;
         default:
             break;
     }
 };
+
+/**
+ * @brief Handle key call back per time.
+ * 
+ * @param handle 
+ * @param key 
+ * @param scancode 
+ * @param action 
+ * @param mods 
+ */
 
 static void key_callback(GLFWwindow *handle, int key, int scancode, int action, int mods){
     if (key < 0) {
@@ -43,9 +55,11 @@ static void key_callback(GLFWwindow *handle, int key, int scancode, int action, 
     switch (action) {
         case GLFW_PRESS:
             self.keyboard.keys[key].down = true;
+            self.keyboard.keys[key].up = false;
             break;
         case GLFW_RELEASE:
             self.keyboard.keys[key].down = false;
+            self.keyboard.keys[key].up = true;
             break;
         default:
             break;

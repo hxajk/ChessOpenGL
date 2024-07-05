@@ -7,7 +7,7 @@ extern "C" {
 #define WINDOW_H
 
 struct Button {
-    bool down, last, last_tick, pressed, pressed_tick;
+    bool down,up, last, last_tick, pressed_tick;
 };
 
 struct Mouse {
