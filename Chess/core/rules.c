@@ -1,75 +1,89 @@
 /// @file rules.c 
 
 #include <Chess/core/rules.h>
-#include <GLFW/glfw3.h>
 
 static struct Board board; static struct Piece piece;
-
-bool is_select_pieces(struct Piece self, double w, double h)
-{
-        glfwGetCursorPos(window_get().handle, &w, &h);
-
-        h = glm_max(0,h);   
-        w = glm_max(0,w);
-
-        h = fabs(h - 576);
-
-        piece = self;
-
-        // A : Press
-        // B : Release
-
-        // A -> B return true
-        
-
-        if(glfwGetMouseButton(window_get().handle, GLFW_MOUSE_BUTTON_LEFT))
-        {
-                if(glms_aabb_events(piece.buffer_position_data, piece.index, w, h, 576) && piece.index >= 8 && piece.index <= 15)
-                {
-                        return true;
-                };
-
-                if(glms_aabb_events(piece.buffer_position_data, piece.index, w, h, 576) && piece.index >= 24 && piece.index <= 32)
-                {
-                        return true;
-                };
-        };
-
-
-        return false;
+static float* piece_clicked_data[2048];
+static float  board_clicked_data[2048][8];
+static int board_saved = -1; static int piece_saved = -1;
+static int  clicked_times = 0;
+static int delay_times = 0;
+bool is_clicked_piece(){
+        struct Window window = window_get();
+        if(window.mouse.buttons[GLFW_MOUSE_BUTTON_LEFT].down){
+                return true;
+        }
+        else if(window.mouse.buttons[GLFW_MOUSE_BUTTON_RIGHT].down){
+                return false;
+        } else {
+                return false;
+        }
 };
 
-bool is_possible_moves(struct Board self, double w, double h)
+bool is_equality_data(float x_data[8],float y_data[8]){
+        if(
+                x_data[0] == y_data[0] &&
+                x_data[1] == y_data[1] &&
+                x_data[2] == y_data[2] &&
+                x_data[3] == y_data[3]  
+          ){
+                return true;
+          }
+          return false;
+};
+
+bool is_select_pieces(struct Piece self, double xp, double yp)
 {
-         glfwGetCursorPos(window_get().handle, &w, &h);
+        piece = self;
 
-        h = glm_max(0,h);   
-        w = glm_max(0,w);
+        glfwGetCursorPos(window_get().handle, &xp, &yp);
 
-        h = fabs(h - 576);
+        yp = glm_max(0,yp);   
+        xp = glm_max(0,xp);
+
+        yp = fabs(yp - 576);
+        if(is_equality_data(piece.buffer_position_data[piece.index], board.buffer_position_data[board_saved])){
+                piece_saved = piece.index;
+        }
+        else if(!is_equality_data(piece.buffer_position_data[piece.index], board.buffer_position_data[board_saved])){
+                /* printf("EMPTY SQUARE\n"); */
+        }
+
+        if(piece_saved == piece.index && is_equality_data(piece.buffer_position_data[piece.index], board.buffer_position_data[board_saved])){
+                return true;
+        } else {
+                return false;
+        }
+};
+
+bool is_possible_moves(struct Board self, double xp, double yp)
+{
+         glfwGetCursorPos(window_get().handle, &xp, &yp);
+
+        yp = glm_max(0,yp);   
+        xp = glm_max(0,xp);
+
+        yp = fabs(yp - 576);
 
         board = self;
 
-        if(glfwGetMouseButton(window_get().handle, GLFW_MOUSE_BUTTON_LEFT)){
+        if(glms_aabb_events(board.buffer_position_data[board.index], xp, yp)){
+                board_saved = board.index;
+        }
 
-                for(int i = 8;i <= 15;i ++){
-                        if(glms_aabb_events(piece.buffer_position_data, i, w, h, 576)){
-                                if(board.index == 2*8 + (i-8)|| board.index == 3*8 + (i-8) )
-                                {
-                                        return true;
-                                };
-                        };
-                };
+        bool is_white_pawn = piece_saved >= 8 && piece_saved <= 15;
+        bool is_black_pawn = piece_saved >= 24 && piece_saved <= 32;
 
-                for(int i = 24;i <= 32;i ++){
-                        if(glms_aabb_events(piece.buffer_position_data, i, w, h, 576)){
-                                if(board.index == 6*8 + (i-24)|| board.index == 5*8 + (i-24) )
-                                {
-                                        return true;
-                                };
-                        };
-                };
+        if(is_white_pawn && is_equality_data(piece.buffer_position_data[piece_saved], board.buffer_position_data[board_saved])){
+                if(board.index == board_saved + 8 || board.index ==  board_saved + 16){
+                        return true;
+                }
+        }
 
+        if(is_black_pawn && is_equality_data(piece.buffer_position_data[piece_saved], board.buffer_position_data[board_saved])){
+                if(board.index == board_saved - 8 || board.index ==  board_saved - 16){
+                        return true;
+                }
         }
 
         return false;
