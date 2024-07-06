@@ -20,13 +20,13 @@ extern "C" {
  * @return false 
  */
 
-static inline bool glms_aabb_events(float buffer_position_data[256][8],int i, double x, double y) {
+static inline bool glms_aabb_events(float position_data[8], double x, double y) {
   if (
       x >= 0 && 
-      buffer_position_data[i][1] >= y && buffer_position_data[i][3] >= y && // y - (UP LEFT - UP RIGHT) 
-      buffer_position_data[i][5] <= y && buffer_position_data[i][7] <= y && // y - (DOWN LEFT - DOWN RIGHT) 
-      buffer_position_data[i][0] <= x && buffer_position_data[i][2] >= x && // x - (UP LEFT - UP RIGHT)
-      buffer_position_data[i][4] >= x && buffer_position_data[i][6] <= x && // x - (DOWN LEFT - DOWN RIGHT)
+      position_data[1] >= y && position_data[3] >= y && // y - (UP LEFT - UP RIGHT) 
+      position_data[5] <= y && position_data[7] <= y && // y - (DOWN LEFT - DOWN RIGHT) 
+      position_data[0] <= x && position_data[2] >= x && // x - (UP LEFT - UP RIGHT)
+      position_data[4] >= x && position_data[6] <= x && // x - (DOWN LEFT - DOWN RIGHT)
       x <= BOARD_SIZE) {
     return true;
   };
