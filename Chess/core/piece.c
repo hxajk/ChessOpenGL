@@ -121,13 +121,13 @@ void piece_render(struct Piece self)
 {
     shader_bind(self.shader_vertex);
     for(self.index = 0;self.index < PIECE_LIMITS;self.index++){
-        vbo_data(self.buffer_vertex[self.index], self.buffer_position_data[self.index], sizeof(self.buffer_position_data[self.index]));
-        if(is_select_pieces(self,0.0,0.0)){
+        if(is_select_pieces(&self,0.0,0.0)){
             SQUARE_TYPE = 1;
         }
         else{
             SQUARE_TYPE = 0;
         };
+        vbo_data(self.buffer_vertex[self.index], self.buffer_position_data[self.index], sizeof(self.buffer_position_data[self.index]));
         glUniform1f(glGetUniformLocation(self.shader_vertex.handle,"square_type"),SQUARE_TYPE);
         if(glm_max(0,self.index) <= 7) {
             // Mayor White pieces
