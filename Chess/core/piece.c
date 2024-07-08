@@ -81,6 +81,8 @@ struct Piece piece_init()
     // Initialize black pawn pieces
     set_position_data(self.buffer_position_data,24, 32, 7, self.scale);
 
+    initalize_copy_data(self.buffer_position_data);
+
     glm_ortho(0, (float)window_get().x, 0, (float)window_get().y, -1, 1, proj);
 
     for(self.index = 0;self.index < PIECE_LIMITS;self.index++){

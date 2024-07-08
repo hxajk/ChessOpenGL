@@ -18,6 +18,7 @@ extern "C" {
 #include <cglm/cglm.h>
 
 bool is_select_pieces(struct Piece* self,  double w, double h);
+void initalize_copy_data(float copy_data[32][8]);
 bool is_possible_moves(struct Board self,  double w, double h);
 
 #endif

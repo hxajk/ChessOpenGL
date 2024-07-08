@@ -1,9 +1,11 @@
 /// @file rules.c 
 
 #include <Chess/core/rules.h>
+#include <stdio.h>
 
 static struct Board board; static struct Piece piece;
 static int board_saved = -1; static int piece_saved = -1;
+static float* piece_position_data[32][8]; 
 static bool holded = false;
 static int x_saved = -1,y_saved = -1;
 static int SCALE = BOARD_SIZE / 8;
@@ -51,6 +53,17 @@ bool is_equality_data(float x_data[8],float y_data[8]){
           return false;
 };
 
+void initalize_copy_data(float copy_data[32][8]){
+        for(int i = 0;i < 32;i++){
+                for(int j = 0;j < 8;j++){
+                        piece_position_data[i][j] = malloc(1 * sizeof(float));
+                        *piece_position_data[i][j] = copy_data[i][j];
+                }
+        }
+
+        printf("%f \n", *piece_position_data[31][0]);
+};
+
 bool is_select_pieces(struct Piece* self, double xp, double yp)
 {
         piece = *self;
@@ -72,20 +85,29 @@ bool is_select_pieces(struct Piece* self, double xp, double yp)
         if(holded){
                 bool is_clicked_events = window_get().mouse.buttons[GLFW_MOUSE_BUTTON_LEFT].down;
                 if(is_clicked_events){
-                        self->buffer_position_data[piece_saved][0] = (x_saved - 0) * SCALE;
-                        self->buffer_position_data[piece_saved][1] = (y_saved + 1) * SCALE;
+                        *piece_position_data[piece_saved][0] = (x_saved - 0) * SCALE;
+                        *piece_position_data[piece_saved][1] = (y_saved + 1) * SCALE;
 
-                        self->buffer_position_data[piece_saved][2] = (x_saved + 1) * SCALE;
-                        self->buffer_position_data[piece_saved][3] = (y_saved + 1) * SCALE;
+                        *piece_position_data[piece_saved][2] = (x_saved + 1) * SCALE;
+                        *piece_position_data[piece_saved][3] = (y_saved + 1) * SCALE;
 
-                        self->buffer_position_data[piece_saved][4] = (x_saved + 1) * SCALE;
-                        self->buffer_position_data[piece_saved][5] = (y_saved + 0) * SCALE;
+                        *piece_position_data[piece_saved][4] = (x_saved + 1) * SCALE;
+                        *piece_position_data[piece_saved][5] = (y_saved + 0) * SCALE;
 
-                        self->buffer_position_data[piece_saved][6] = (x_saved - 0) * SCALE;
-                        self->buffer_position_data[piece_saved][7] = (y_saved + 0) * SCALE;
+                        *piece_position_data[piece_saved][6] = (x_saved - 0) * SCALE;
+                        *piece_position_data[piece_saved][7] = (y_saved + 0) * SCALE;
                 }
-
+                else if(!is_clicked_events){
+                        holded = false;
+                };
         }
+        if (piece_saved != -1 && !holded) {
+
+        for(int i = 0;i < 8;i++){
+                self->buffer_position_data[piece_saved][i] = *piece_position_data[piece_saved][i];
+                }        
+        }
+        printf("%f \n", self->buffer_position_data[9][0]);
 
         if(piece_saved == piece.index && is_equality_data(piece.buffer_position_data[piece.index], board.buffer_position_data[board_saved])){
                 return true;
