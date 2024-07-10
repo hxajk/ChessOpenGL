@@ -12,10 +12,9 @@
 #define BOARD_LIMIT 64
 #define POSITIONS_PER_SQUARE 8
 
-#define PIECE_LIMITS 32
+#define PIECE_LIMITS 16
 #define BOARD_SIZE 576
 #define POSITIONS_PER_PIECE 8
-#define IMAGES_LIMITS 12
 #define WHITE_PAWN_INDEX 5
 #define BLACK_PAWN_INDEX 11
 
@@ -42,7 +41,7 @@ typedef enum {
 } PieceType;
 
 typedef enum {
-    LIGHT = 0,
+    WHITE = 0,
     DARK = 1
 } ChessColors;
 

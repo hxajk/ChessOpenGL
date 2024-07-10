@@ -1,5 +1,6 @@
 /// @file piece.c
 
+#include "Chess/util/util.h"
 #include <Chess/core/piece.h>
 
 static struct Piece self = {
@@ -77,15 +78,15 @@ struct Piece piece_init()
     self.scale = 4 * (float)(2*window_get().y) / 64;
     glm_ortho(0, (float)window_get().x, 0, (float)window_get().y, -1, 1, proj);
 
-    set_position_data(self.buffer_position_data[LIGHT],0, 7, 1, self.scale);
-    set_position_data(self.buffer_position_data[LIGHT],8, 15, 2, self.scale);
+    set_position_data(self.buffer_position_data[WHITE],0, 7, 1, self.scale);
+    set_position_data(self.buffer_position_data[WHITE],8, 15, 2, self.scale);
     set_position_data(self.buffer_position_data[DARK],0, 7, 8, self.scale);
     set_position_data(self.buffer_position_data[DARK],8, 15, 7, self.scale);
 
     int i;
-    for(i = 0;i < 16;i++){
-        self.buffer_vertex[LIGHT][i] = vbo_create(GL_ARRAY_BUFFER, true);
-        self.array_vertex[LIGHT][i] = vao_create();
+    for(i = 0;i < PIECE_LIMITS;i++){
+        self.buffer_vertex[WHITE][i] = vbo_create(GL_ARRAY_BUFFER, true);
+        self.array_vertex[WHITE][i] = vao_create();
         self.buffer_vertex[DARK][i] = vbo_create(GL_ARRAY_BUFFER, true);
         self.array_vertex[DARK][i] = vao_create();
     }
@@ -93,19 +94,19 @@ struct Piece piece_init()
     self.index_vertex = vbo_create(GL_ELEMENT_ARRAY_BUFFER, false);
 
     for(i = 0;i < 6;i++){
-        self.texture_vertex[LIGHT][i] = texture_create(image_paths[LIGHT][i]);
+        self.texture_vertex[WHITE][i] = texture_create(image_paths[WHITE][i]);
         self.texture_vertex[DARK][i] = texture_create(image_paths[DARK][i]);
     };
-    for(i = 0;i < 16;i++){
-        vbo_data(self.buffer_vertex[LIGHT][i], self.buffer_position_data[LIGHT][i], sizeof(self.buffer_position_data[LIGHT][i]));
+    for(i = 0;i < PIECE_LIMITS;i++){
+        vbo_data(self.buffer_vertex[WHITE][i], self.buffer_position_data[WHITE][i], sizeof(self.buffer_position_data[WHITE][i]));
         vbo_data(self.buffer_vertex[DARK][i], self.buffer_position_data[DARK][i], sizeof(self.buffer_position_data[DARK][i]));
     };
     vbo_data(coordinate_vertex, buffer_coordinate_data, sizeof(buffer_coordinate_data));
     vbo_data(self.index_vertex, self.index_data, sizeof(self.index_data));
 
-    for(i = 0;i < 16;i++){
-        vao_attrib(self.array_vertex[LIGHT][i], self.buffer_vertex[LIGHT][i], 0, 2, GL_FLOAT, 0, 0);
-        vao_attrib(self.array_vertex[LIGHT][i], coordinate_vertex, 1, 2, GL_FLOAT, 0, 0);
+    for(i = 0;i < PIECE_LIMITS;i++){
+        vao_attrib(self.array_vertex[WHITE][i], self.buffer_vertex[WHITE][i], 0, 2, GL_FLOAT, 0, 0);
+        vao_attrib(self.array_vertex[WHITE][i], coordinate_vertex, 1, 2, GL_FLOAT, 0, 0);
         vao_attrib(self.array_vertex[DARK][i], self.buffer_vertex[DARK][i], 0, 2, GL_FLOAT, 0, 0);
         vao_attrib(self.array_vertex[DARK][i], coordinate_vertex, 1, 2, GL_FLOAT, 0, 0);
     };
@@ -125,12 +126,12 @@ struct Piece piece_init()
 void piece_render(struct Piece self)
 {
     shader_bind(self.shader_vertex);
-        for(self.index = 0;self.index < 16;self.index++){
+        for(self.index = 0;self.index < PIECE_LIMITS;self.index++){
             glUniform1f(glGetUniformLocation(self.shader_vertex.handle,"square_type"),SQUARE_TYPE);
 
-            vbo_data(self.buffer_vertex[LIGHT][self.index], self.buffer_position_data[LIGHT][self.index], sizeof(self.buffer_position_data[LIGHT][self.index]));
+            vbo_data(self.buffer_vertex[WHITE][self.index], self.buffer_position_data[WHITE][self.index], sizeof(self.buffer_position_data[WHITE][self.index]));
             texture_bind(self.texture_vertex[0][0]);
-            vao_bind(self.array_vertex[LIGHT][self.index]);
+            vao_bind(self.array_vertex[WHITE][self.index]);
             vbo_bind(self.index_vertex);
             glDrawElements(GL_TRIANGLES,sizeof(self.index_data) / sizeof(unsigned int),GL_UNSIGNED_INT,0);
 
@@ -148,12 +149,13 @@ void piece_render(struct Piece self)
  * @param self 
  */
 
-void piece_destroy(struct Piece self)
-{
+void piece_destroy(struct Piece self) {
     shader_destroy(self.shader_vertex);
     vbo_destroy(self.index_vertex);
-        for(self.index = 0;self.index < 16;self.index++){
-            vbo_destroy(self.buffer_vertex[LIGHT][self.index]);
-            vao_destroy(self.array_vertex[DARK][self.index]);
+    for (self.index = 0; self.index < PIECE_LIMITS; self.index++) {
+        vbo_destroy(self.buffer_vertex[WHITE][self.index]);
+        vao_destroy(self.array_vertex[WHITE][self.index]);
+        vbo_destroy(self.buffer_vertex[DARK][self.index]);
+        vao_destroy(self.array_vertex[DARK][self.index]);
     }
-}; 
+}
