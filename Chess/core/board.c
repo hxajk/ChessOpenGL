@@ -1,6 +1,5 @@
 /// @file board.c
 
-#include "Chess/util/util.h"
 #include <Chess/core/board.h>
 
 #define WHITE_SQUARE 0.93333334, 0.84705883, 0.7529412,1.0,  \
@@ -32,25 +31,22 @@ static int SQUARE_TYPE = 0;
  * @param y 
  * @param self.scale 
  */
-
 // NOTES: UP LEFT -> UP RIGHT -> DOWN RIGHT -> DOWN LEFT (CLOCKWISE ORDER).
-static void set_position_data(float buffer_position_data[BOARD_LIMIT][POSITIONS_PER_SQUARE], int start, int end, int y, float scale){
-    vec2 current_position = {0, 1};
-    int i,j;
-    for (i = start; i < end; i++) {
-            for (j = 0; j < POSITIONS_PER_SQUARE; j++) {
-                if ((j & 1) == 1) {
-                    buffer_position_data[i][j] = scale*((j <= 3) ? y : y - 1); 
-                } else {
-                    buffer_position_data[i][j] = scale*((j == 0 ||  j == 6) ? current_position[0] : current_position[1]);
-                }
+static void set_position_data(float buffer_position_data[RANK][POSITIONS_PER_SQUARE],int y, float scale){
+    int j,k;
+    static vec2 current_position = {0, 1};
+    for(j = 0;j < RANK;j++){
+        for(k = 0;k < POSITIONS_PER_SQUARE;k++){
+            if ((k & 1) == 1) {
+                buffer_position_data[j][k] = scale*((k <= 3) ? y : y - 1); 
+            } else {
+                buffer_position_data[j][k] = scale*((k == 0 ||  k == 6) ? current_position[0] : current_position[1]);
             }
-            current_position[0]++;
-            current_position[1]++;
         }
-        current_position[0] = 0;
-        current_position[1] = 1;
-};
+        current_position[0]++; current_position[1]++;
+    }
+    current_position[0] = 0; current_position[1] = 1;
+}
 
 /**
  * @brief Set the colour data object
@@ -62,14 +58,14 @@ static void set_position_data(float buffer_position_data[BOARD_LIMIT][POSITIONS_
  * @param self.scale 
  */
 // NOTES: ODD & ONE = False, EVEN & ONE = True
-static void set_colour_data(struct VBO* colour_vertex, float (*buffer_colour_data)[16]){
+static void set_colour_data(struct VBO colour_vertex[8][8], float (*buffer_colour_data)[16]){
     for(int i = 0;i < RANK;i++){
         for(int j = 0;j < FILE;j ++){
             if((i + j) & 1){
-                vbo_data(colour_vertex[i*RANK+j], buffer_colour_data[0], sizeof(buffer_colour_data[0]));
+                vbo_data(colour_vertex[i][j], buffer_colour_data[0], sizeof(buffer_colour_data[0]));
             }
             else if(!((i+j) & 1)){  
-                vbo_data(colour_vertex[i*RANK+j], buffer_colour_data[1], sizeof(buffer_colour_data[1]));
+                vbo_data(colour_vertex[i][j], buffer_colour_data[1], sizeof(buffer_colour_data[1]));
             }
         };
     };
@@ -83,14 +79,7 @@ static void set_colour_data(struct VBO* colour_vertex, float (*buffer_colour_dat
 
 struct Board board_init(){
     mat4 proj;
-    struct VBO coordinate_vertex;
-    struct VBO color_vertex[BOARD_LIMIT];
-    float buffer_coordinate_data[8] = {
-        0,1,
-        1,1,
-        1,0,
-        0,0
-    };
+    struct VBO color_vertex[FILE][RANK];
     float buffer_color_data[2][16] = {
         { WHITE_SQUARE },
         { DARK_SQUARE  },
@@ -98,36 +87,63 @@ struct Board board_init(){
 
     self.shader_vertex = shader_create("../resources/shaders/board.vs", "../resources/shaders/board.fs");
     self.scale = 4 * (float)(2 * window_get().y) / BOARD_LIMIT;
-    
-    for(self.index = 1;self.index <= RANK;self.index++){
-        set_position_data(self.buffer_position_data, (self.index-1)*RANK, (self.index)*RANK, self.index, self.scale);
+    int i,j;
+    for(i = 0;i < FILE;i++){
+            set_position_data(self.buffer_position_data[i], i+1, self.scale);
     }
 
     glm_ortho(0, (float)window_get().x, 0, (float)window_get().y, -1, 1, proj);
 
-    for(self.index = 0;self.index < BOARD_LIMIT;self.index++){
-        self.buffer_vertex[self.index] = vbo_create(GL_ARRAY_BUFFER, false);
-        self.array_vertex[self.index] = vao_create();
-        color_vertex[self.index] = vbo_create(GL_ARRAY_BUFFER, false);
+    for(i = 0;i < FILE;i++){
+        for(j = 0;j < RANK;j++){
+            self.buffer_vertex[i][j] = vbo_create(GL_ARRAY_BUFFER, false);
+            self.array_vertex[i][j] = vao_create();
+            color_vertex[i][j] = vbo_create(GL_ARRAY_BUFFER, false);
+        }
     }
-
     self.index_vertex = vbo_create(GL_ELEMENT_ARRAY_BUFFER, false);
 
-    for(self.index = 0;self.index < BOARD_LIMIT;self.index++){
-        vbo_data(self.buffer_vertex[self.index], self.buffer_position_data[self.index], sizeof(self.buffer_position_data[self.index]));
+    for(i = 0;i < FILE;i++){
+        for(j = 0;j < RANK;j++){
+            vbo_data(self.buffer_vertex[i][j], self.buffer_position_data[i][j], sizeof(self.buffer_position_data[i][j]));
+        }
     };
     vbo_data(self.index_vertex, (unsigned int*)self.index_data, sizeof(self.index_data));
     set_colour_data(color_vertex, buffer_color_data);
 
-    for(self.index = 0;self.index < BOARD_LIMIT;self.index++){
-        vao_attrib(self.array_vertex[self.index], self.buffer_vertex[self.index], 0, 2, GL_FLOAT, 0, 0);
-        vao_attrib(self.array_vertex[self.index], color_vertex[self.index], 1, 4, GL_FLOAT, 0, 0);
+    for(i = 0;i < FILE;i++){
+        for(j = 0;j < RANK;j++){
+            vao_attrib(self.array_vertex[i][j], self.buffer_vertex[i][j], 0, 2, GL_FLOAT, 0, 0);
+            vao_attrib(self.array_vertex[i][j], color_vertex[i][j], 1, 4, GL_FLOAT, 0, 0);
+        }
     };
+
+    printf("%f \n", self.buffer_position_data[0][7][0]);
+    printf("%f \n", self.buffer_position_data[0][7][2]);
+    printf("%f \n", self.buffer_position_data[0][7][4]);
+    printf("%f \n", self.buffer_position_data[0][7][6]);
+
 
     shader_bind(self.shader_vertex);
     glUniformMatrix4fv(glGetUniformLocation(self.shader_vertex.handle,"proj"),1,false,*proj);
     return self;
 };
+static double cx,cy;
+void board_get_info(struct Board* board){
+    glfwGetCursorPos(window_get().handle, &self.cx, &self.cy);    
+    self.cx = glm_max(0,self.cx);
+    self.cy = glm_max(0,self.cy);
+   
+    self.cx = glm_min(504,self.cx);
+    self.cy = glm_min(504,self.cy);
+
+    self.cy = fabs(self.cy - 504);
+
+    self.cx = self.cx / self.scale;
+    self.cy = self.cy / self.scale;
+    
+    *board = self;
+}
 
 /**
  * @brief Render, draw board.
@@ -137,21 +153,17 @@ struct Board board_init(){
 void board_render(struct Board self){
     glClear(GL_COLOR_BUFFER_BIT);
     shader_bind(self.shader_vertex);
-    for(self.index = 0;self.index < BOARD_LIMIT;self.index++){
-        if(is_possible_moves(self, 0.0, 0.0)){
-            SQUARE_TYPE = 1;
-        }
-        else  
-        {
-            SQUARE_TYPE = 0;
+    int i,j;
+    for(i = 0;i < FILE;i++){
+        for(j = 0; j < RANK;j++){
+            glUniform1f(glGetUniformLocation(self.shader_vertex.handle,"square_type"),SQUARE_TYPE);
+            vao_bind(self.array_vertex[i][j]);
+            vbo_bind(self.index_vertex);
+            glDrawElements(GL_TRIANGLES, sizeof(self.index_data) / sizeof(unsigned int), GL_UNSIGNED_INT, 0 );
         };
-        glUniform1f(glGetUniformLocation(self.shader_vertex.handle,"square_type"),SQUARE_TYPE);
-        vao_bind(self.array_vertex[self.index]);
-        vbo_bind(self.index_vertex);
-        glDrawElements(GL_TRIANGLES, sizeof(self.index_data) / sizeof(unsigned int), GL_UNSIGNED_INT, 0 );
-    };
     
-};
+    };
+}
 
 /**
  * @brief Destroy, destruct board
@@ -162,11 +174,13 @@ void board_render(struct Board self){
 void board_destroy(struct Board self)
 {
     shader_destroy(self.shader_vertex);
-    
+    int i,j;
     vbo_destroy(self.index_vertex);
 
-    for(self.index = 0;self.index < BOARD_LIMIT;self.index++){
-        vao_destroy(self.array_vertex[self.index]);
-        vbo_destroy(self.buffer_vertex[self.index]);
+    for(i = 0;i < FILE;i++){
+        for(j = 0;j < RANK;j++){
+            vao_destroy(self.array_vertex[i][j]);
+            vbo_destroy(self.buffer_vertex[i][j]);
+        }
     };
 };

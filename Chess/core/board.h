@@ -19,17 +19,20 @@ struct Board {
   struct Shader shader_vertex;
   struct  VBO index_vertex;
 
-  struct  VBO buffer_vertex[64];
-  struct  VAO array_vertex[64];
+  struct  VBO buffer_vertex[8][8];
+  struct  VAO array_vertex[8][8];
   
-  float buffer_position_data[64][8];
+  float buffer_position_data[8][8][8];
   unsigned int index_data[6];
 
   float scale;
   unsigned int index;
+  double cx,cy;
 };
 
 struct Board board_init();
+
+void board_get_info(struct Board* board);
 
 void board_render(struct Board self);
 
