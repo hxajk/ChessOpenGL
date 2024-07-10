@@ -118,17 +118,16 @@ struct Board board_init(){
         }
     };
 
-    printf("%f \n", self.buffer_position_data[0][7][0]);
-    printf("%f \n", self.buffer_position_data[0][7][2]);
-    printf("%f \n", self.buffer_position_data[0][7][4]);
-    printf("%f \n", self.buffer_position_data[0][7][6]);
-
-
     shader_bind(self.shader_vertex);
     glUniformMatrix4fv(glGetUniformLocation(self.shader_vertex.handle,"proj"),1,false,*proj);
     return self;
 };
-static double cx,cy;
+
+/**
+ * @brief Get board information by return board implementation.
+ * 
+ * @param board 
+ */
 void board_get_info(struct Board* board){
     glfwGetCursorPos(window_get().handle, &self.cx, &self.cy);    
     self.cx = glm_max(0,self.cx);
