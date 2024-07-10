@@ -23,11 +23,11 @@ struct Piece {
   struct Shader shader_vertex;
   struct  VBO index_vertex;
 
-  struct  VBO buffer_vertex[32];
-  struct  VAO array_vertex[32];
-  struct Texture texture_vertex[12];
+  struct  VBO buffer_vertex[2][16];
+  struct  VAO array_vertex[2][16];
+  struct Texture texture_vertex[2][6];
 
-  float buffer_position_data[32][8];
+  float buffer_position_data[2][16][8];
   unsigned int index_data[6];
 
   float scale;

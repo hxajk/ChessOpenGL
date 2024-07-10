@@ -22,7 +22,7 @@ static unsigned int SQUARE_TYPE = 0;
 static void set_position_data(float buffer_position_data[PIECE_LIMITS][POSITIONS_PER_PIECE], int start, int end, int y, float scale){
     vec2 current_position = {0, 1};
     int i,j;
-    for (i = start; i < end; i++) {
+    for (i = start; i <= end; i++) {
             for (j = 0; j < POSITIONS_PER_PIECE; j++){
                 if ((j & 1) == 1) {
                     buffer_position_data[i][j] = scale*((j <= 3) ? y : y - 1);
@@ -53,60 +53,63 @@ struct Piece piece_init()
         1,0,
         0,0
     };
-    const char* image_paths[] = {
-        
-        "../resources/texture/white_rook.png",
-        "../resources/texture/white_horse.png",
-        "../resources/texture/white_bishop.png",
-        "../resources/texture/white_queen.png",
-        "../resources/texture/white_king.png",
-        "../resources/texture/white_pawn.png",
+    const char* image_paths[2][6] = {
+        {
+            "../resources/texture/white_rook.png",
+            "../resources/texture/white_horse.png",
+            "../resources/texture/white_bishop.png",
+            "../resources/texture/white_queen.png",
+            "../resources/texture/white_king.png",
+            "../resources/texture/white_pawn.png",
+        },
 
-        "../resources/texture/black_rook.png",
-        "../resources/texture/black_horse.png",
-        "../resources/texture/black_bishop.png",
-        "../resources/texture/black_queen.png",
-        "../resources/texture/black_king.png",
-        "../resources/texture/black_pawn.png",
+        {
+            "../resources/texture/black_rook.png",
+            "../resources/texture/black_horse.png",
+            "../resources/texture/black_bishop.png",
+            "../resources/texture/black_queen.png",
+            "../resources/texture/black_king.png",
+            "../resources/texture/black_pawn.png",
+        }
+
     };
     self.shader_vertex = shader_create("../resources/shaders/base.vs", "../resources/shaders/base.fs"),
     self.scale = 4 * (float)(2*window_get().y) / 64;
-
-    // Initialize major white pieces
-    set_position_data(self.buffer_position_data,0, 8, 1, self.scale);
-    // Initialize white pawn pieces
-    set_position_data(self.buffer_position_data,8, 16, 2, self.scale);
-    // Initialize major black pieces
-    set_position_data(self.buffer_position_data,16, 24, 8, self.scale);
-    // Initialize black pawn pieces
-    set_position_data(self.buffer_position_data,24, 32, 7, self.scale);
-
-    initalize_copy_data(self.buffer_position_data);
-
     glm_ortho(0, (float)window_get().x, 0, (float)window_get().y, -1, 1, proj);
 
-    for(self.index = 0;self.index < PIECE_LIMITS;self.index++){
-        self.buffer_vertex[self.index] = vbo_create(GL_ARRAY_BUFFER, true);
-        self.array_vertex[self.index] = vao_create();
-    }
-    for(self.index = 0;self.index < IMAGES_LIMITS;self.index++){
-        self.texture_vertex[self.index] = texture_create(image_paths[self.index]);  
-    };
+    set_position_data(self.buffer_position_data[LIGHT],0, 7, 1, self.scale);
+    set_position_data(self.buffer_position_data[LIGHT],8, 15, 2, self.scale);
+    set_position_data(self.buffer_position_data[DARK],0, 7, 8, self.scale);
+    set_position_data(self.buffer_position_data[DARK],8, 15, 7, self.scale);
 
+    int i;
+    for(i = 0;i < 16;i++){
+        self.buffer_vertex[LIGHT][i] = vbo_create(GL_ARRAY_BUFFER, true);
+        self.array_vertex[LIGHT][i] = vao_create();
+        self.buffer_vertex[DARK][i] = vbo_create(GL_ARRAY_BUFFER, true);
+        self.array_vertex[DARK][i] = vao_create();
+    }
     coordinate_vertex = vbo_create(GL_ARRAY_BUFFER, true);
     self.index_vertex = vbo_create(GL_ELEMENT_ARRAY_BUFFER, false);
 
-    for(self.index = 0;self.index < PIECE_LIMITS;self.index++){
-        vbo_data(self.buffer_vertex[self.index], self.buffer_position_data[self.index], sizeof(self.buffer_position_data[self.index]));
+    for(i = 0;i < 6;i++){
+        self.texture_vertex[LIGHT][i] = texture_create(image_paths[LIGHT][i]);
+        self.texture_vertex[DARK][i] = texture_create(image_paths[DARK][i]);
+    };
+    for(i = 0;i < 16;i++){
+        vbo_data(self.buffer_vertex[LIGHT][i], self.buffer_position_data[LIGHT][i], sizeof(self.buffer_position_data[LIGHT][i]));
+        vbo_data(self.buffer_vertex[DARK][i], self.buffer_position_data[DARK][i], sizeof(self.buffer_position_data[DARK][i]));
     };
     vbo_data(coordinate_vertex, buffer_coordinate_data, sizeof(buffer_coordinate_data));
-    vbo_data(self.index_vertex, (unsigned int*)self.index_data, sizeof(self.index_data));
+    vbo_data(self.index_vertex, self.index_data, sizeof(self.index_data));
 
-    for(self.index = 0;self.index < PIECE_LIMITS;self.index++){
-        vao_attrib(self.array_vertex[self.index], self.buffer_vertex[self.index], 0, 2, GL_FLOAT, 0, 0);
-        vao_attrib(self.array_vertex[self.index], coordinate_vertex, 1, 2, GL_FLOAT, 0, 0);
+    for(i = 0;i < 16;i++){
+        vao_attrib(self.array_vertex[LIGHT][i], self.buffer_vertex[LIGHT][i], 0, 2, GL_FLOAT, 0, 0);
+        vao_attrib(self.array_vertex[LIGHT][i], coordinate_vertex, 1, 2, GL_FLOAT, 0, 0);
+        vao_attrib(self.array_vertex[DARK][i], self.buffer_vertex[DARK][i], 0, 2, GL_FLOAT, 0, 0);
+        vao_attrib(self.array_vertex[DARK][i], coordinate_vertex, 1, 2, GL_FLOAT, 0, 0);
     };
-    
+
     shader_bind(self.shader_vertex);
     glUniformMatrix4fv(glGetUniformLocation(self.shader_vertex.handle,"proj"),1,false,*proj);
     glUniform1i(glGetUniformLocation(self.shader_vertex.handle,"id"),0);
@@ -122,35 +125,21 @@ struct Piece piece_init()
 void piece_render(struct Piece self)
 {
     shader_bind(self.shader_vertex);
-    for(self.index = 0;self.index < PIECE_LIMITS;self.index++){
-        if(is_select_pieces(&self,0.0,0.0)){
-            SQUARE_TYPE = 1;
-        }
-        else{
-            SQUARE_TYPE = 0;
+        for(self.index = 0;self.index < 16;self.index++){
+            glUniform1f(glGetUniformLocation(self.shader_vertex.handle,"square_type"),SQUARE_TYPE);
+
+            vbo_data(self.buffer_vertex[LIGHT][self.index], self.buffer_position_data[LIGHT][self.index], sizeof(self.buffer_position_data[LIGHT][self.index]));
+            texture_bind(self.texture_vertex[0][0]);
+            vao_bind(self.array_vertex[LIGHT][self.index]);
+            vbo_bind(self.index_vertex);
+            glDrawElements(GL_TRIANGLES,sizeof(self.index_data) / sizeof(unsigned int),GL_UNSIGNED_INT,0);
+
+            vbo_data(self.buffer_vertex[DARK][self.index], self.buffer_position_data[DARK][self.index], sizeof(self.buffer_position_data[DARK][self.index]));
+            texture_bind(self.texture_vertex[DARK][0]);
+            vao_bind(self.array_vertex[DARK][self.index]);
+            vbo_bind(self.index_vertex);
+            glDrawElements(GL_TRIANGLES,sizeof(self.index_data) / sizeof(unsigned int),GL_UNSIGNED_INT,0);
         };
-        vbo_data(self.buffer_vertex[self.index], self.buffer_position_data[self.index], sizeof(self.buffer_position_data[self.index]));
-        glUniform1f(glGetUniformLocation(self.shader_vertex.handle,"square_type"),SQUARE_TYPE);
-        if(glm_max(0,self.index) <= 7) {
-            // Mayor White pieces
-            texture_bind(self.texture_vertex[(self.index < 5) ? self.index : (7 - self.index)]);
-        }
-        else if(glm_max(8,self.index) <= 15) {
-            // Pawn White pieces
-            texture_bind(self.texture_vertex[WHITE_PAWN_INDEX]);
-        }
-        else if(glm_max(16,self.index) <= 23){
-            // Mayor Black pieces
-            texture_bind(self.texture_vertex[(self.index <= 20) ? self.index - 10 : 23 - self.index + 6]);
-        }
-        else if(glm_max(24,self.index) <= 32){
-            // Pawn Black pieces
-            texture_bind(self.texture_vertex[BLACK_PAWN_INDEX]);
-        };
-        vao_bind(self.array_vertex[self.index]);
-        vbo_bind(self.index_vertex);
-        glDrawElements(GL_TRIANGLES,sizeof(self.index_data) / sizeof(unsigned int),GL_UNSIGNED_INT,0);
-    };
 };
 
 /**
@@ -163,8 +152,8 @@ void piece_destroy(struct Piece self)
 {
     shader_destroy(self.shader_vertex);
     vbo_destroy(self.index_vertex);
-    for(self.index = 0;self.index < PIECE_LIMITS;self.index++){
-        vbo_destroy(self.buffer_vertex[self.index]);
-        vao_destroy(self.array_vertex[self.index]);
-    };
+        for(self.index = 0;self.index < 16;self.index++){
+            vbo_destroy(self.buffer_vertex[LIGHT][self.index]);
+            vao_destroy(self.array_vertex[DARK][self.index]);
+    }
 }; 
