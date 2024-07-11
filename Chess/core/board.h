@@ -26,7 +26,6 @@ struct Board {
   unsigned int index_data[6];
 
   float scale;
-  unsigned int index;
   double cx,cy;
 };
 
