@@ -119,28 +119,40 @@ struct Piece piece_init()
 };
 
 /**
+ * @brief Get piece information by return piece implementation.
+ * 
+ * @param piece 
+ */
+
+void piece_get_info(struct Piece *piece){
+    
+    *piece = self;
+}
+
+/**
  * @brief Render chess piece
  * 
  * @param self 
  */
 void piece_render(struct Piece self)
 {
-    shader_bind(self.shader_vertex);
-        for(self.index = 0;self.index < PIECE_LIMITS;self.index++){
-            glUniform1f(glGetUniformLocation(self.shader_vertex.handle,"square_type"),SQUARE_TYPE);
-
-            vbo_data(self.buffer_vertex[WHITE][self.index], self.buffer_position_data[WHITE][self.index], sizeof(self.buffer_position_data[WHITE][self.index]));
-            texture_bind(self.texture_vertex[0][0]);
-            vao_bind(self.array_vertex[WHITE][self.index]);
-            vbo_bind(self.index_vertex);
-            glDrawElements(GL_TRIANGLES,sizeof(self.index_data) / sizeof(unsigned int),GL_UNSIGNED_INT,0);
-
-            vbo_data(self.buffer_vertex[DARK][self.index], self.buffer_position_data[DARK][self.index], sizeof(self.buffer_position_data[DARK][self.index]));
-            texture_bind(self.texture_vertex[DARK][0]);
-            vao_bind(self.array_vertex[DARK][self.index]);
-            vbo_bind(self.index_vertex);
-            glDrawElements(GL_TRIANGLES,sizeof(self.index_data) / sizeof(unsigned int),GL_UNSIGNED_INT,0);
+        shader_bind(self.shader_vertex);
+        int i,j;
+        for(j = 0;j < 2;j++){
+            for(i = 0;i < PIECE_LIMITS;i++){
+                if(is_select_pieces(j,i)){
+                    SQUARE_TYPE = 1;
+                } else {
+                    SQUARE_TYPE = 0;
+                }
+                glUniform1f(glGetUniformLocation(self.shader_vertex.handle,"square_type"),SQUARE_TYPE);
+                vbo_data(self.buffer_vertex[j][i], self.buffer_position_data[j][i], sizeof(self.buffer_position_data[j][i]));
+                glm_max(0,i) <= 7 ? texture_bind(self.texture_vertex[j][(i < 5) ? i : (7 - i)]) : texture_bind(self.texture_vertex[j][WHITE_PAWN_INDEX]);
+                vao_bind(self.array_vertex[j][i]);
+                vbo_bind(self.index_vertex);
+                glDrawElements(GL_TRIANGLES,sizeof(self.index_data) / sizeof(unsigned int),GL_UNSIGNED_INT,0);
         };
+        }
 };
 
 /**
@@ -152,10 +164,11 @@ void piece_render(struct Piece self)
 void piece_destroy(struct Piece self) {
     shader_destroy(self.shader_vertex);
     vbo_destroy(self.index_vertex);
-    for (self.index = 0; self.index < PIECE_LIMITS; self.index++) {
-        vbo_destroy(self.buffer_vertex[WHITE][self.index]);
-        vao_destroy(self.array_vertex[WHITE][self.index]);
-        vbo_destroy(self.buffer_vertex[DARK][self.index]);
-        vao_destroy(self.array_vertex[DARK][self.index]);
+    int i;
+    for (i = 0; i < PIECE_LIMITS; i++) {
+        vbo_destroy(self.buffer_vertex[WHITE][i]);
+        vao_destroy(self.array_vertex[WHITE][i]);
+        vbo_destroy(self.buffer_vertex[DARK][i]);
+        vao_destroy(self.array_vertex[DARK][i]);
     }
 }

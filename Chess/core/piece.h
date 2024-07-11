@@ -31,10 +31,11 @@ struct Piece {
   unsigned int index_data[6];
 
   float scale;
-  unsigned int index;
 };
 
 struct Piece piece_init();
+
+void piece_get_info(struct Piece* piece);
 
 void piece_render(struct Piece self);
 
