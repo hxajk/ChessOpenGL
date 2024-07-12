@@ -20,22 +20,15 @@ static unsigned int SQUARE_TYPE = 0;
  * @param self.scale 
  */
 // NOTES: UP LEFT -> UP RIGHT -> DOWN RIGHT -> DOWN LEFT (CLOCKWISE ORDER).
-static void set_position_data(float buffer_position_data[PIECE_LIMITS][POSITIONS_PER_PIECE], int start, int end, int y, float scale){
-    vec2 current_position = {0, 1};
+static void set_position_data(float buffer_position_data[POSITIONS_PER_PIECE], vec2 vertex_position, int y, float scale){
     int i,j;
-    for (i = start; i <= end; i++) {
-            for (j = 0; j < POSITIONS_PER_PIECE; j++){
-                if ((j & 1) == 1) {
-                    buffer_position_data[i][j] = scale*((j <= 3) ? y : y - 1);
-                } else {
-                    buffer_position_data[i][j] = scale*((j == 0 || j == 6) ? current_position[0] : current_position[1]);
-                }
-            }
-            current_position[0]++;
-            current_position[1]++;
+    for (j = 0; j < POSITIONS_PER_PIECE; j++){
+        if ((j & 1) == 1) {
+            buffer_position_data[j] = scale*((j <= 3) ? y : y - 1);
+        } else {
+            buffer_position_data[j] = scale*((j == 0 || j == 6) ? vertex_position[0] : vertex_position[1]);
         }
-        current_position[0] = 0;
-        current_position[1] = 1;
+    }
 };
 
 /**
@@ -78,10 +71,18 @@ struct Piece piece_init()
     self.scale = 4 * (float)(2*window_get().y) / 64;
     glm_ortho(0, (float)window_get().x, 0, (float)window_get().y, -1, 1, proj);
 
-    set_position_data(self.buffer_position_data[WHITE],0, 7, 1, self.scale);
-    set_position_data(self.buffer_position_data[WHITE],8, 15, 2, self.scale);
-    set_position_data(self.buffer_position_data[DARK],0, 7, 8, self.scale);
-    set_position_data(self.buffer_position_data[DARK],8, 15, 7, self.scale);
+    vec2 vertex_position = {0,1};
+    for(int i = 0;i < 8;i++){
+         set_position_data(self.buffer_position_data[WHITE][i], vertex_position, 1, self.scale);
+         set_position_data(self.buffer_position_data[DARK][i], vertex_position,  8, self.scale);
+         vertex_position[0]++; vertex_position[1]++;
+    }
+    vertex_position[0] = 0; vertex_position[1] = 1;
+    for(int i = 8;i < 16;i++){
+        set_position_data(self.buffer_position_data[WHITE][i], vertex_position, 2, self.scale);
+        set_position_data(self.buffer_position_data[DARK][i], vertex_position,  7, self.scale);
+        vertex_position[0]++; vertex_position[1]++;
+    }
 
     int i;
     for(i = 0;i < PIECE_LIMITS;i++){
@@ -140,11 +141,6 @@ void piece_render(struct Piece self)
         int i,j;
         for(j = 0;j < 2;j++){
             for(i = 0;i < PIECE_LIMITS;i++){
-                if(is_select_pieces(j,i)){
-                    SQUARE_TYPE = 1;
-                } else {
-                    SQUARE_TYPE = 0;
-                }
                 glUniform1f(glGetUniformLocation(self.shader_vertex.handle,"square_type"),SQUARE_TYPE);
                 vbo_data(self.buffer_vertex[j][i], self.buffer_position_data[j][i], sizeof(self.buffer_position_data[j][i]));
                 glm_max(0,i) <= 7 ? texture_bind(self.texture_vertex[j][(i < 5) ? i : (7 - i)]) : texture_bind(self.texture_vertex[j][WHITE_PAWN_INDEX]);

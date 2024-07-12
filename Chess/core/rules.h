@@ -13,7 +13,6 @@ extern "C" {
 #include <Chess/core/board.h>
 
 #include <Chess/util/util.h>
-#include <Chess/util/aabb.h>
 
 #include <cglm/cglm.h>
 

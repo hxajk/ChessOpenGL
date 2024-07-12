@@ -32,44 +32,16 @@ static int SQUARE_TYPE = 0;
  * @param self.scale 
  */
 // NOTES: UP LEFT -> UP RIGHT -> DOWN RIGHT -> DOWN LEFT (CLOCKWISE ORDER).
-static void set_position_data(float buffer_position_data[RANK][POSITIONS_PER_SQUARE],int y, float scale){
+static void set_position_data(float buffer_position_data[POSITIONS_PER_SQUARE],vec2 vertex_position,int y, float scale){
     int j,k;
-    static vec2 current_position = {0, 1};
-    for(j = 0;j < RANK;j++){
         for(k = 0;k < POSITIONS_PER_SQUARE;k++){
             if ((k & 1) == 1) {
-                buffer_position_data[j][k] = scale*((k <= 3) ? y : y - 1); 
+                buffer_position_data[k] = scale*((k <= 3) ? y : y - 1); 
             } else {
-                buffer_position_data[j][k] = scale*((k == 0 ||  k == 6) ? current_position[0] : current_position[1]);
+                buffer_position_data[k] = scale*((k == 0 ||  k == 6) ? vertex_position[0] : vertex_position[1]);
             }
         }
-        current_position[0]++; current_position[1]++;
-    }
-    current_position[0] = 0; current_position[1] = 1;
 }
-
-/**
- * @brief Set the colour data object
- * The purpose of this function is to represent position as the square.
- * @param self.buffer_position_data 
- * @param start 
- * @param end 
- * @param y 
- * @param self.scale 
- */
-// NOTES: ODD & ONE = False, EVEN & ONE = True
-static void set_colour_data(struct VBO colour_vertex[8][8], float (*buffer_colour_data)[16]){
-    for(int i = 0;i < RANK;i++){
-        for(int j = 0;j < FILE;j ++){
-            if((i + j) & 1){
-                vbo_data(colour_vertex[i][j], buffer_colour_data[0], sizeof(buffer_colour_data[0]));
-            }
-            else if(!((i+j) & 1)){  
-                vbo_data(colour_vertex[i][j], buffer_colour_data[1], sizeof(buffer_colour_data[1]));
-            }
-        };
-    };
-};
 
 /**
  * @brief Initalize, create chess board.
@@ -88,9 +60,6 @@ struct Board board_init(){
     self.shader_vertex = shader_create("../resources/shaders/board.vs", "../resources/shaders/board.fs");
     self.scale = 4 * (float)(2 * window_get().y) / BOARD_LIMIT;
     int i,j;
-    for(i = 0;i < FILE;i++){
-            set_position_data(self.buffer_position_data[i], i+1, self.scale);
-    }
 
     glm_ortho(0, (float)window_get().x, 0, (float)window_get().y, -1, 1, proj);
 
@@ -104,12 +73,26 @@ struct Board board_init(){
     self.index_vertex = vbo_create(GL_ELEMENT_ARRAY_BUFFER, false);
 
     for(i = 0;i < FILE;i++){
+        vec2 vertex_position = {0, 1};
+        for(j = 0;j < RANK;j++){
+            set_position_data(self.buffer_position_data[i][j],vertex_position,i+1, self.scale);
+            vertex_position[0]++; vertex_position[1]++;
+
+            if((i + j) & 1){
+                vbo_data(color_vertex[i][j], buffer_color_data[0], sizeof(buffer_color_data[0]));
+            }
+            else if(!((i+j) & 1)){  
+                vbo_data(color_vertex[i][j], buffer_color_data[1], sizeof(buffer_color_data[1]));
+            }
+        }
+    }
+
+    for(i = 0;i < FILE;i++){
         for(j = 0;j < RANK;j++){
             vbo_data(self.buffer_vertex[i][j], self.buffer_position_data[i][j], sizeof(self.buffer_position_data[i][j]));
         }
     };
     vbo_data(self.index_vertex, (unsigned int*)self.index_data, sizeof(self.index_data));
-    set_colour_data(color_vertex, buffer_color_data);
 
     for(i = 0;i < FILE;i++){
         for(j = 0;j < RANK;j++){
