@@ -1,7 +1,6 @@
 /// @file rules.c 
 
 #include <Chess/core/rules.h>
-#include <stdio.h>
 
 static struct Board board; static struct Piece piece;
 static double x,y;

@@ -3,6 +3,11 @@
 #include "Chess/util/util.h"
 #include <Chess/core/piece.h>
 
+#define FEN "RNBQKBNR/PPPPPPPP/8/8/8/8/pppppppp/rnbqkbnr"
+
+#define RANK 8
+#define FILE 8
+
 static struct Piece self = {
         .index_data = {
             0,1,2,2,3,0
@@ -30,6 +35,45 @@ static void set_position_data(float buffer_position_data[POSITIONS_PER_PIECE], v
         }
     }
 };
+
+static void bind_piece(vec2 position, vec2 piece){
+        vao_bind(self.array_vertex[(int)position[0]][(int)position[1]]);
+        texture_bind(self.texture_vertex[(int)piece[0]][(int)piece[1]]);
+        vbo_bind(self.index_vertex);
+        glDrawElements(GL_TRIANGLES,sizeof(self.index_data) / sizeof(unsigned int),GL_UNSIGNED_INT,0);
+};
+
+static void load_fen(const char* fen){
+    int file = 0;
+    int rank = 0;
+
+    for(int i = 0; fen[i] != '\0';i++){
+        char c = fen[i];
+        if(c == '/'){
+            rank = 0;
+            file++; 
+        } else if(c >= '1' && c <= '8' ) {
+            rank += c - '0';
+        } else {
+            switch (c) {
+                case 'P': bind_piece((vec2){file,rank}, (vec2){WHITE, PAWN}); break;
+                case 'N': bind_piece((vec2){file,rank}, (vec2){WHITE, KNIGHT}); break;
+                case 'B': bind_piece((vec2){file,rank}, (vec2){WHITE, BISHOP}); break;
+                case 'R': bind_piece((vec2){file,rank}, (vec2){WHITE, ROOK}); break;
+                case 'Q': bind_piece((vec2){file,rank}, (vec2){WHITE, QUEEN}); break;
+                case 'K': bind_piece((vec2){file,rank}, (vec2){WHITE, KING}); break;
+
+                case 'p': bind_piece((vec2){file,rank}, (vec2){DARK, PAWN}); break;
+                case 'n': bind_piece((vec2){file,rank}, (vec2){DARK, KNIGHT}); break;
+                case 'b': bind_piece((vec2){file,rank}, (vec2){DARK, BISHOP}); break;
+                case 'r': bind_piece((vec2){file,rank}, (vec2){DARK, ROOK}); break;
+                case 'q': bind_piece((vec2){file,rank}, (vec2){DARK, QUEEN}); break;
+                case 'k': bind_piece((vec2){file,rank}, (vec2){DARK, KING}); break;
+            }
+            rank++;
+        }
+    }
+}
 
 /**
  * @brief Initalize piece, create chess pieces
@@ -70,26 +114,24 @@ struct Piece piece_init()
     self.shader_vertex = shader_create("../resources/shaders/base.vs", "../resources/shaders/base.fs"),
     self.scale = 4 * (float)(2*window_get().y) / 64;
     glm_ortho(0, (float)window_get().x, 0, (float)window_get().y, -1, 1, proj);
-
+    int i,j;
     vec2 vertex_position = {0,1};
-    for(int i = 0;i < 8;i++){
-         set_position_data(self.buffer_position_data[WHITE][i], vertex_position, 1, self.scale);
-         set_position_data(self.buffer_position_data[DARK][i], vertex_position,  8, self.scale);
-         vertex_position[0]++; vertex_position[1]++;
-    }
-    vertex_position[0] = 0; vertex_position[1] = 1;
-    for(int i = 8;i < 16;i++){
-        set_position_data(self.buffer_position_data[WHITE][i], vertex_position, 2, self.scale);
-        set_position_data(self.buffer_position_data[DARK][i], vertex_position,  7, self.scale);
-        vertex_position[0]++; vertex_position[1]++;
+
+    for(i = 0;i < FILE;i++){
+        vec2 vertex_position = {0, 1};
+        for(j = 0;j < RANK;j++){
+            set_position_data(self.buffer_position_data[i][j],vertex_position,i+1, self.scale);
+            vertex_position[0]++; vertex_position[1]++;
+        }
     }
 
-    int i;
-    for(i = 0;i < PIECE_LIMITS;i++){
-        self.buffer_vertex[WHITE][i] = vbo_create(GL_ARRAY_BUFFER, true);
-        self.array_vertex[WHITE][i] = vao_create();
-        self.buffer_vertex[DARK][i] = vbo_create(GL_ARRAY_BUFFER, true);
-        self.array_vertex[DARK][i] = vao_create();
+    vertex_position[0] = 0; vertex_position[1] = 1;
+
+    for(i = 0;i < FILE;i++){
+        for(j = 0;j < RANK;j++){
+            self.buffer_vertex[i][j] = vbo_create(GL_ARRAY_BUFFER, false);
+            self.array_vertex[i][j] = vao_create();
+        }
     }
     coordinate_vertex = vbo_create(GL_ARRAY_BUFFER, true);
     self.index_vertex = vbo_create(GL_ELEMENT_ARRAY_BUFFER, false);
@@ -98,23 +140,25 @@ struct Piece piece_init()
         self.texture_vertex[WHITE][i] = texture_create(image_paths[WHITE][i]);
         self.texture_vertex[DARK][i] = texture_create(image_paths[DARK][i]);
     };
-    for(i = 0;i < PIECE_LIMITS;i++){
-        vbo_data(self.buffer_vertex[WHITE][i], self.buffer_position_data[WHITE][i], sizeof(self.buffer_position_data[WHITE][i]));
-        vbo_data(self.buffer_vertex[DARK][i], self.buffer_position_data[DARK][i], sizeof(self.buffer_position_data[DARK][i]));
+
+    for(i = 0;i < FILE;i++){
+        for(j = 0;j < RANK;j++){
+            vbo_data(self.buffer_vertex[i][j], self.buffer_position_data[i][j], sizeof(self.buffer_position_data[i][j]));
+        }
     };
     vbo_data(coordinate_vertex, buffer_coordinate_data, sizeof(buffer_coordinate_data));
-    vbo_data(self.index_vertex, self.index_data, sizeof(self.index_data));
+    vbo_data(self.index_vertex, (unsigned int*)self.index_data, sizeof(self.index_data));
 
-    for(i = 0;i < PIECE_LIMITS;i++){
-        vao_attrib(self.array_vertex[WHITE][i], self.buffer_vertex[WHITE][i], 0, 2, GL_FLOAT, 0, 0);
-        vao_attrib(self.array_vertex[WHITE][i], coordinate_vertex, 1, 2, GL_FLOAT, 0, 0);
-        vao_attrib(self.array_vertex[DARK][i], self.buffer_vertex[DARK][i], 0, 2, GL_FLOAT, 0, 0);
-        vao_attrib(self.array_vertex[DARK][i], coordinate_vertex, 1, 2, GL_FLOAT, 0, 0);
+    for(i = 0;i < FILE;i++){
+        for(j = 0;j < RANK;j++){
+            vao_attrib(self.array_vertex[i][j], self.buffer_vertex[i][j], 0, 2, GL_FLOAT, 0, 0);
+            vao_attrib(self.array_vertex[i][j], coordinate_vertex, 1, 2, GL_FLOAT, 0, 0);
+        }
     };
-
     shader_bind(self.shader_vertex);
     glUniformMatrix4fv(glGetUniformLocation(self.shader_vertex.handle,"proj"),1,false,*proj);
     glUniform1i(glGetUniformLocation(self.shader_vertex.handle,"id"),0);
+
 
     return self;
 };
@@ -138,17 +182,8 @@ void piece_get_info(struct Piece *piece){
 void piece_render(struct Piece self)
 {
         shader_bind(self.shader_vertex);
-        int i,j;
-        for(j = 0;j < 2;j++){
-            for(i = 0;i < PIECE_LIMITS;i++){
-                glUniform1f(glGetUniformLocation(self.shader_vertex.handle,"square_type"),SQUARE_TYPE);
-                vbo_data(self.buffer_vertex[j][i], self.buffer_position_data[j][i], sizeof(self.buffer_position_data[j][i]));
-                glm_max(0,i) <= 7 ? texture_bind(self.texture_vertex[j][(i < 5) ? i : (7 - i)]) : texture_bind(self.texture_vertex[j][WHITE_PAWN_INDEX]);
-                vao_bind(self.array_vertex[j][i]);
-                vbo_bind(self.index_vertex);
-                glDrawElements(GL_TRIANGLES,sizeof(self.index_data) / sizeof(unsigned int),GL_UNSIGNED_INT,0);
-        };
-        }
+
+        load_fen(FEN);     
 };
 
 /**
@@ -160,11 +195,11 @@ void piece_render(struct Piece self)
 void piece_destroy(struct Piece self) {
     shader_destroy(self.shader_vertex);
     vbo_destroy(self.index_vertex);
-    int i;
-    for (i = 0; i < PIECE_LIMITS; i++) {
-        vbo_destroy(self.buffer_vertex[WHITE][i]);
-        vao_destroy(self.array_vertex[WHITE][i]);
-        vbo_destroy(self.buffer_vertex[DARK][i]);
-        vao_destroy(self.array_vertex[DARK][i]);
-    }
+    int i,j;
+    for(i = 0;i < FILE;i++){
+        for(j = 0;j < RANK;j++){
+            vao_destroy(self.array_vertex[i][j]);
+            vbo_destroy(self.buffer_vertex[i][j]);
+        }
+    };
 }

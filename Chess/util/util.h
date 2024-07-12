@@ -12,11 +12,8 @@
 #define BOARD_LIMIT 64
 #define POSITIONS_PER_SQUARE 8
 
-#define PIECE_LIMITS 16
 #define BOARD_SIZE 576
 #define POSITIONS_PER_PIECE 8
-#define WHITE_PAWN_INDEX 5
-#define BLACK_PAWN_INDEX 11
 
 typedef enum
 {
@@ -32,12 +29,12 @@ typedef enum
 } BoardPosition;
 
 typedef enum {
-    PAWN,
     ROOK,
     KNIGHT,
     BISHOP,
     QUEEN,
-    KING
+    KING,
+    PAWN,
 } PieceType;
 
 typedef enum {
