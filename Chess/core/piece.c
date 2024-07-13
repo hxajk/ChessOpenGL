@@ -2,6 +2,8 @@
 
 #include "Chess/util/util.h"
 #include <Chess/core/piece.h>
+#include <Chess/util/parser.h>
+#include <stdio.h>
 
 #define FEN "RNBQKBNR/PPPPPPPP/8/8/8/8/pppppppp/rnbqkbnr"
 
@@ -42,11 +44,17 @@ static void bind_piece(vec2 position, vec2 piece){
         vbo_bind(self.index_vertex);
         glDrawElements(GL_TRIANGLES,sizeof(self.index_data) / sizeof(unsigned int),GL_UNSIGNED_INT,0);
 };
-
+vec4 fen_data[32];
+int i = 0;
+static void bind_fen_data(vec2 position, vec2 piece){
+    fen_data[i][0] = position[0]; fen_data[i][1] = position[1];
+    fen_data[i][2] = piece[0]; fen_data[i][3] = piece[1];
+    printf("[INFO] - %s - %s \n", parser_board(position[0], position[1]) ,parser_piece(piece[0], piece[1]));
+    i++;
+};
 static void load_fen(const char* fen){
     int file = 0;
     int rank = 0;
-
     for(int i = 0; fen[i] != '\0';i++){
         char c = fen[i];
         if(c == '/'){
@@ -56,19 +64,19 @@ static void load_fen(const char* fen){
             rank += c - '0';
         } else {
             switch (c) {
-                case 'P': bind_piece((vec2){file,rank}, (vec2){WHITE, PAWN}); break;
-                case 'N': bind_piece((vec2){file,rank}, (vec2){WHITE, KNIGHT}); break;
-                case 'B': bind_piece((vec2){file,rank}, (vec2){WHITE, BISHOP}); break;
-                case 'R': bind_piece((vec2){file,rank}, (vec2){WHITE, ROOK}); break;
-                case 'Q': bind_piece((vec2){file,rank}, (vec2){WHITE, QUEEN}); break;
-                case 'K': bind_piece((vec2){file,rank}, (vec2){WHITE, KING}); break;
+                case 'P': bind_fen_data((vec2){file,rank}, (vec2){WHITE, PAWN}); break;
+                case 'N': bind_fen_data((vec2){file,rank}, (vec2){WHITE, KNIGHT}); break;
+                case 'B': bind_fen_data((vec2){file,rank}, (vec2){WHITE, BISHOP}); break;
+                case 'R': bind_fen_data((vec2){file,rank}, (vec2){WHITE, ROOK}); break;
+                case 'Q': bind_fen_data((vec2){file,rank}, (vec2){WHITE, QUEEN}); break;
+                case 'K': bind_fen_data((vec2){file,rank}, (vec2){WHITE, KING}); break;
 
-                case 'p': bind_piece((vec2){file,rank}, (vec2){DARK, PAWN}); break;
-                case 'n': bind_piece((vec2){file,rank}, (vec2){DARK, KNIGHT}); break;
-                case 'b': bind_piece((vec2){file,rank}, (vec2){DARK, BISHOP}); break;
-                case 'r': bind_piece((vec2){file,rank}, (vec2){DARK, ROOK}); break;
-                case 'q': bind_piece((vec2){file,rank}, (vec2){DARK, QUEEN}); break;
-                case 'k': bind_piece((vec2){file,rank}, (vec2){DARK, KING}); break;
+                case 'p': bind_fen_data((vec2){file,rank}, (vec2){DARK, PAWN}); break;
+                case 'n': bind_fen_data((vec2){file,rank}, (vec2){DARK, KNIGHT}); break;
+                case 'b': bind_fen_data((vec2){file,rank}, (vec2){DARK, BISHOP}); break;
+                case 'r': bind_fen_data((vec2){file,rank}, (vec2){DARK, ROOK}); break;
+                case 'q': bind_fen_data((vec2){file,rank}, (vec2){DARK, QUEEN}); break;
+                case 'k': bind_fen_data((vec2){file,rank}, (vec2){DARK, KING}); break;
             }
             rank++;
         }
@@ -179,11 +187,19 @@ void piece_get_info(struct Piece *piece){
  * 
  * @param self 
  */
+
+ bool init = true;
 void piece_render(struct Piece self)
 {
         shader_bind(self.shader_vertex);
+        if(init){
+            init = false;
+            load_fen(FEN);  
+        }   
 
-        load_fen(FEN);     
+        for(int i = 0;i < 32;i++){
+            bind_piece((vec2){fen_data[i][0], fen_data[i][1]}, (vec2){fen_data[i][2], fen_data[i][3]});
+        }
 };
 
 /**
