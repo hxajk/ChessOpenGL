@@ -117,9 +117,9 @@ void board_get_info(struct Board* board){
     self.cy = glm_max(0,self.cy);
    
     self.cx = glm_min(504,self.cx);
-    self.cy = glm_min(576,self.cy);
+    self.cy = glm_min(575,self.cy);
 
-    self.cy = fabs(self.cy - 576);
+    self.cy = fabs(self.cy - 575);
     self.cx = self.cx / self.scale;
     self.cy = self.cy / self.scale;
     

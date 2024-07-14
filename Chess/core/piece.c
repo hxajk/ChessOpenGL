@@ -3,6 +3,7 @@
 #include "Chess/util/util.h"
 #include <Chess/core/piece.h>
 #include <Chess/util/parser.h>
+#include <Chess/core/board.h>
 #include <stdio.h>
 
 #define FEN "RNBQKBNR/PPPPPPPP/8/8/8/8/pppppppp/rnbqkbnr"
@@ -17,6 +18,7 @@ static struct Piece self = {
 };
 static unsigned int SQUARE_TYPE = 0;
 
+struct Board board;
 /**
  * @brief Set the position data object
  * The purpose of this function is to represent position as the square.
@@ -36,6 +38,15 @@ static void set_position_data(float buffer_position_data[POSITIONS_PER_PIECE], v
             buffer_position_data[j] = scale*((j == 0 || j == 6) ? vertex_position[0] : vertex_position[1]);
         }
     }
+};
+
+static bool is_equality_data(float data_1[8], float data_2[8]){
+        for(int i = 0;i < 8;i++){
+                if(data_1[i] != data_2[i]){
+                        return false;
+                }
+        }
+        return true;
 };
 
 static void bind_piece(vec2 position, vec2 piece){
@@ -167,7 +178,6 @@ struct Piece piece_init()
     glUniformMatrix4fv(glGetUniformLocation(self.shader_vertex.handle,"proj"),1,false,*proj);
     glUniform1i(glGetUniformLocation(self.shader_vertex.handle,"id"),0);
 
-
     return self;
 };
 
@@ -189,6 +199,9 @@ void piece_get_info(struct Piece *piece){
  */
 
  bool init = true;
+ int piece_saved = 0;
+ bool holded = false;
+ bool mouse_pressed = false; 
 void piece_render(struct Piece self)
 {
         shader_bind(self.shader_vertex);
@@ -196,9 +209,27 @@ void piece_render(struct Piece self)
             init = false;
             load_fen(FEN);  
         }   
+        board_get_info(&board);
 
         for(int i = 0;i < 32;i++){
-            bind_piece((vec2){fen_data[i][0], fen_data[i][1]}, (vec2){fen_data[i][2], fen_data[i][3]});
+        if( window_get().mouse.buttons[GLFW_MOUSE_BUTTON_LEFT].down && !mouse_pressed  && is_equality_data(board.buffer_position_data[(int)board.cy][(int)board.cx], board.buffer_position_data[(int)fen_data[i][0]][(int)fen_data[i][1]]) ){
+            printf("[INFO] - %s \n",parser_piece(fen_data[i][2], fen_data[i][3]));
+            holded = true;
+            piece_saved = i;
+            mouse_pressed = true;
+        }
+        if(!window_get().mouse.buttons[GLFW_MOUSE_BUTTON_LEFT].down){
+            holded = false;
+            mouse_pressed = false;
+        }        
+        if( holded && window_get().mouse.buttons[GLFW_MOUSE_BUTTON_LEFT].down && !is_equality_data(board.buffer_position_data[(int)board.cy][(int)board.cx], board.buffer_position_data[(int)fen_data[i][0]][(int)fen_data[i][1]])){
+            fen_data[piece_saved][0] = board.cy;
+            fen_data[piece_saved][1] = board.cx;
+        }
+
+        printf("%f - %f \n", board.cx, board.cy);
+            
+        bind_piece((vec2){fen_data[i][0], fen_data[i][1]}, (vec2){fen_data[i][2], fen_data[i][3]});
         }
 };
 
