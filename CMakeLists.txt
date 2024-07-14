@@ -45,7 +45,6 @@ set(SOURCES
     # core folder
     ${CMAKE_SOURCE_DIR}/Chess/core/board.c
     ${CMAKE_SOURCE_DIR}/Chess/core/piece.c
-    ${CMAKE_SOURCE_DIR}/Chess/core/rules.c
 )
 
 add_executable(run ${SOURCES})
