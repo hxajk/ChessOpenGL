@@ -33,7 +33,7 @@ include_directories(
 )
 
 set(SOURCES
-    ${CMAKE_SOURCE_DIR}/main.cpp
+    ${CMAKE_SOURCE_DIR}/main.c
 
     # gfx folder
     ${CMAKE_SOURCE_DIR}/Chess/gfx/vao.c

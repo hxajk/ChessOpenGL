@@ -30,11 +30,11 @@ void run(int width, int height, const char* title)
         return;
     }
 
-    Window window = window_init(width, height, title); 
+    struct Window window = window_init(width, height, title); 
 
-    Board board = board_init();
+    struct Board board = board_init();
 
-    Piece piece = piece_init();
+    struct Piece piece = piece_init();
 
 
     while (!glfwWindowShouldClose(window.handle)) {
