@@ -18,21 +18,16 @@ static unsigned int SQUARE_TYPE = 0;
 
 struct Board board;
 
-static void set_position_data(float buffer_position_data[POSITIONS_PER_PIECE], vec2 vertex_position, int y, float scale) {
-    for (int j = 0; j < POSITIONS_PER_PIECE; j++) {
-        buffer_position_data[j] = scale * ((j & 1) == 1 ? ((j <= 3) ? y : y - 1) : ((j == 0 || j == 6) ? vertex_position[0] : vertex_position[1]));
-    }
-}
-
-static bool is_equality_data(float data_1[8], float data_2[8]) {
-    for (int i = 0; i < 8; i++) {
-        if (data_1[i] != data_2[i]) return false;
-    }
-    return true;
-}
-
 vec4 fen_inital_data[32];
 vec4 fen_dynamic_data[32];
+
+/**
+ * @brief Bind piece together.
+ * 
+ * @param inital_position 
+ * @param dynamic_position 
+ * @param piece 
+ */
 
 static void bind_piece(vec2 inital_position, vec2 dynamic_position, vec2 piece) {
     vao_bind(self.array_vertex[(int)dynamic_position[0]][(int)dynamic_position[1]]);
@@ -41,9 +36,15 @@ static void bind_piece(vec2 inital_position, vec2 dynamic_position, vec2 piece) 
     glDrawElements(GL_TRIANGLES, sizeof(self.index_data) / sizeof(unsigned int), GL_UNSIGNED_INT, 0);
 }
 
-int index_fen = 0;
 
-static void bind_fen_data(vec2 position, vec2 piece) {
+/**
+ * @brief Initalize fen data together.
+ * 
+ * @param position 
+ * @param piece 
+ */
+static int index_fen = 0;
+static void init_fen_data(vec2 position, vec2 piece) {
     fen_inital_data[index_fen][1] = position[1];  
     fen_inital_data[index_fen][0] = position[0];  
     fen_dynamic_data[index_fen][0] = position[0]; 
@@ -55,6 +56,12 @@ static void bind_fen_data(vec2 position, vec2 piece) {
     printf("[INFO] - %s - %s \n", parser_board(position[0], position[1]), parser_piece(piece[0], piece[1]));
     index_fen++;
 }
+
+/**
+ * @brief Load fen data
+ * 
+ * @param fen 
+ */
 
 static void load_fen(const char* fen) {
     int file = 0, rank = 0;
@@ -68,28 +75,29 @@ static void load_fen(const char* fen) {
         } else {
             vec2 position = {file, rank};
             switch (c) {
-                case 'P': bind_fen_data(position, (vec2){WHITE, PAWN}); break;
-                case 'N': bind_fen_data(position, (vec2){WHITE, KNIGHT}); break;
-                case 'B': bind_fen_data(position, (vec2){WHITE, BISHOP}); break;
-                case 'R': bind_fen_data(position, (vec2){WHITE, ROOK}); break;
-                case 'Q': bind_fen_data(position, (vec2){WHITE, QUEEN}); break;
-                case 'K': bind_fen_data(position, (vec2){WHITE, KING}); break;
-                case 'p': bind_fen_data(position, (vec2){DARK, PAWN}); break;
-                case 'n': bind_fen_data(position, (vec2){DARK, KNIGHT}); break;
-                case 'b': bind_fen_data(position, (vec2){DARK, BISHOP}); break;
-                case 'r': bind_fen_data(position, (vec2){DARK, ROOK}); break;
-                case 'q': bind_fen_data(position, (vec2){DARK, QUEEN}); break;
-                case 'k': bind_fen_data(position, (vec2){DARK, KING}); break;
+                case 'P': init_fen_data(position, (vec2){WHITE, PAWN}); break;
+                case 'N': init_fen_data(position, (vec2){WHITE, KNIGHT}); break;
+                case 'B': init_fen_data(position, (vec2){WHITE, BISHOP}); break;
+                case 'R': init_fen_data(position, (vec2){WHITE, ROOK}); break;
+                case 'Q': init_fen_data(position, (vec2){WHITE, QUEEN}); break;
+                case 'K': init_fen_data(position, (vec2){WHITE, KING}); break;
+                case 'p': init_fen_data(position, (vec2){DARK, PAWN}); break;
+                case 'n': init_fen_data(position, (vec2){DARK, KNIGHT}); break;
+                case 'b': init_fen_data(position, (vec2){DARK, BISHOP}); break;
+                case 'r': init_fen_data(position, (vec2){DARK, ROOK}); break;
+                case 'q': init_fen_data(position, (vec2){DARK, QUEEN}); break;
+                case 'k': init_fen_data(position, (vec2){DARK, KING}); break;
             }
             rank++;
         }
     }
 }
 
-static void highlight_selected_piece(int piece_index, int colour_piece, int value_piece, vec2 inital_position){
-        glUniform1f(glGetUniformLocation(self.shader_vertex.handle, "square_type"), 
-                ( fen_inital_data[piece_index][0] == inital_position[0] && fen_inital_data[piece_index][1] == inital_position[1]) && fen_dynamic_data[piece_index][2] == colour_piece && fen_dynamic_data[piece_index][3] == value_piece ? 1 : 0);
-}
+/**
+ * @brief Main initalize for piece
+ * 
+ * @return struct Piece 
+ */
 
 struct Piece piece_init() {
     mat4 proj;
@@ -153,10 +161,47 @@ void piece_get_info(struct Piece *piece) {
     *piece = self;
 }
 
-bool init = true;
-int piece_saved = 0;
-bool holded = false;
-bool mouse_pressed = false;
+/**
+ * @brief  The name speaks for itself.
+ * 
+ * @param piece_index 
+ * @param colour_piece 
+ * @param value_piece 
+ * @param inital_position 
+ */
+static void highlight_selected_piece(int piece_index, int colour_piece, int value_piece, vec2 inital_position){
+        glUniform1f(glGetUniformLocation(self.shader_vertex.handle, "square_type"), 
+                ( fen_inital_data[piece_index][0] == inital_position[0] && fen_inital_data[piece_index][1] == inital_position[1]) && fen_dynamic_data[piece_index][2] == colour_piece && fen_dynamic_data[piece_index][3] == value_piece ? 1 : 0);
+}
+
+/**
+ * @brief The name speaks for itself
+ * 
+ * @param board 
+ * @param piece_index 
+ * @param isHolded 
+ */
+
+static void translate_selected_piece(struct Board board, int piece_index, int selected_piece_index , bool isHolded){
+        if (isHolded && window_get().mouse.buttons[GLFW_MOUSE_BUTTON_LEFT].down &&
+            !is_equality_data(board.buffer_position_data[(int)board.cy][(int)board.cx], 
+            board.buffer_position_data[(int)fen_dynamic_data[piece_index][0]][(int)fen_dynamic_data[piece_index][1]])
+            ) {
+                /*TODO: A more proper handle these pawn, king, ...  */
+            fen_dynamic_data[selected_piece_index][0] = board.cy;
+            fen_dynamic_data[selected_piece_index][1] = board.cx;
+        }
+
+}
+static bool init = true;
+static int piece_saved = ~1;
+static bool holded = false;
+static bool mouse_pressed = false;
+/**
+ * @brief Main render for piece.
+ * 
+ * @param self 
+ */
 
 void piece_render(struct Piece self) {
     shader_bind(self.shader_vertex);
@@ -164,29 +209,29 @@ void piece_render(struct Piece self) {
         init = false;
         load_fen(FEN);
     }
-
     board_get_info(&board);
-
     for (int i = 0; i < 32; i++) {
         if (window_get().mouse.buttons[GLFW_MOUSE_BUTTON_LEFT].down && !mouse_pressed &&
-            is_equality_data(board.buffer_position_data[(int)board.cy][(int)board.cx], board.buffer_position_data[(int)fen_dynamic_data[i][0]][(int)fen_dynamic_data[i][1]])) {
+            is_equality_data(board.buffer_position_data[(int)board.cy][(int)board.cx],
+            board.buffer_position_data[(int)fen_dynamic_data[i][0]][(int)fen_dynamic_data[i][1]])
+            ) {
             printf("[INFO] - %s \n", parser_piece(fen_dynamic_data[i][2], fen_dynamic_data[i][3]));
             holded = true;
             piece_saved = i;
             mouse_pressed = true;
+        }  else if (window_get().mouse.buttons[GLFW_MOUSE_BUTTON_LEFT].down && !mouse_pressed &&
+            !is_equality_data(board.buffer_position_data[(int)board.cy][(int)board.cx],
+            board.buffer_position_data[(int)fen_dynamic_data[i][0]][(int)fen_dynamic_data[i][1]])
+            ) {
+            piece_saved = ~1;
         }
         if (!window_get().mouse.buttons[GLFW_MOUSE_BUTTON_LEFT].down) {
             holded = false;
             mouse_pressed = false;
         }
-        if (holded && window_get().mouse.buttons[GLFW_MOUSE_BUTTON_LEFT].down &&
-            !is_equality_data(board.buffer_position_data[(int)board.cy][(int)board.cx], board.buffer_position_data[(int)fen_dynamic_data[i][0]][(int)fen_dynamic_data[i][1]])) {
-            fen_dynamic_data[piece_saved][0] = board.cy;
-            fen_dynamic_data[piece_saved][1] = board.cx;
-        }
-        highlight_selected_piece(i, DARK, ROOK, (vec2){7,7});
-        highlight_selected_piece(i, WHITE, ROOK, (vec2){0,7});
-        printf("%f - %f \n", board.cx, board.cy);
+
+        translate_selected_piece(board, i, piece_saved , holded);
+        highlight_selected_piece(i, fen_dynamic_data[piece_saved][2], fen_dynamic_data[piece_saved][3], (vec2){fen_inital_data[piece_saved][0],fen_inital_data[piece_saved][1]});
         bind_piece((vec2){fen_inital_data[i][0], fen_inital_data[i][1]}, (vec2){fen_dynamic_data[i][0], fen_dynamic_data[i][1]}, (vec2){fen_dynamic_data[i][2], fen_dynamic_data[i][3]});
     }
 }

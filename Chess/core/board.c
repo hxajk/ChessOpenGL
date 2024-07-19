@@ -22,26 +22,7 @@ static struct Board self = {
     };
 static int SQUARE_TYPE = 0;
 
-/**
- * @brief Set the position data object
- * The purpose of this function is to represent position as the square.
- * @param self.buffer_position_data 
- * @param start 
- * @param end 
- * @param y 
- * @param self.scale 
- */
-// NOTES: UP LEFT -> UP RIGHT -> DOWN RIGHT -> DOWN LEFT (CLOCKWISE ORDER).
-static void set_position_data(float buffer_position_data[POSITIONS_PER_SQUARE],vec2 vertex_position,int y, float scale){
-    int j,k;
-        for(k = 0;k < POSITIONS_PER_SQUARE;k++){
-            if ((k & 1) == 1) {
-                buffer_position_data[k] = scale*((k <= 3) ? y : y - 1); 
-            } else {
-                buffer_position_data[k] = scale*((k == 0 ||  k == 6) ? vertex_position[0] : vertex_position[1]);
-            }
-        }
-}
+
 
 /**
  * @brief Initalize, create chess board.
