@@ -11,87 +11,20 @@
 #define RANK 8
 #define FILE 8
 
+
+static struct PieceState self_state = {
+    .holded = false,
+    .mouse_pressed = false,
+    .piece_saved = -1,
+    .selected_piece_index = -1
+};
+
 static struct Piece self = {
     .index_data = {0, 1, 2, 2, 3, 0}
 };
+static bool init = true;
 static unsigned int SQUARE_TYPE = 0;
-
 struct Board board;
-
-vec4 fen_inital_data[32];
-vec4 fen_dynamic_data[32];
-
-/**
- * @brief Bind piece together.
- * 
- * @param inital_position 
- * @param dynamic_position 
- * @param piece 
- */
-
-static void bind_piece(vec2 inital_position, vec2 dynamic_position, vec2 piece) {
-    vao_bind(self.array_vertex[(int)dynamic_position[0]][(int)dynamic_position[1]]);
-    texture_bind(self.texture_vertex[(int)piece[0]][(int)piece[1]]);
-    vbo_bind(self.index_vertex);
-    glDrawElements(GL_TRIANGLES, sizeof(self.index_data) / sizeof(unsigned int), GL_UNSIGNED_INT, 0);
-}
-
-
-/**
- * @brief Initalize fen data together.
- * 
- * @param position 
- * @param piece 
- */
-static int index_fen = 0;
-static void init_fen_data(vec2 position, vec2 piece) {
-    fen_inital_data[index_fen][1] = position[1];  
-    fen_inital_data[index_fen][0] = position[0];  
-    fen_dynamic_data[index_fen][0] = position[0]; 
-    fen_dynamic_data[index_fen][1] = position[1];
-    fen_inital_data[index_fen][2] = piece[0]; 
-    fen_inital_data[index_fen][3] = piece[1]; 
-    fen_dynamic_data[index_fen][2] = piece[0]; 
-    fen_dynamic_data[index_fen][3] = piece[1];
-    printf("[INFO] - %s - %s \n", parser_board(position[0], position[1]), parser_piece(piece[0], piece[1]));
-    index_fen++;
-}
-
-/**
- * @brief Load fen data
- * 
- * @param fen 
- */
-
-static void load_fen(const char* fen) {
-    int file = 0, rank = 0;
-    for (int i = 0; fen[i] != '\0'; i++) {
-        char c = fen[i];
-        if (c == '/') {
-            rank = 0;
-            file++;
-        } else if (c >= '1' && c <= '8') {
-            rank += c - '0';
-        } else {
-            vec2 position = {file, rank};
-            switch (c) {
-                case 'P': init_fen_data(position, (vec2){WHITE, PAWN}); break;
-                case 'N': init_fen_data(position, (vec2){WHITE, KNIGHT}); break;
-                case 'B': init_fen_data(position, (vec2){WHITE, BISHOP}); break;
-                case 'R': init_fen_data(position, (vec2){WHITE, ROOK}); break;
-                case 'Q': init_fen_data(position, (vec2){WHITE, QUEEN}); break;
-                case 'K': init_fen_data(position, (vec2){WHITE, KING}); break;
-                case 'p': init_fen_data(position, (vec2){DARK, PAWN}); break;
-                case 'n': init_fen_data(position, (vec2){DARK, KNIGHT}); break;
-                case 'b': init_fen_data(position, (vec2){DARK, BISHOP}); break;
-                case 'r': init_fen_data(position, (vec2){DARK, ROOK}); break;
-                case 'q': init_fen_data(position, (vec2){DARK, QUEEN}); break;
-                case 'k': init_fen_data(position, (vec2){DARK, KING}); break;
-            }
-            rank++;
-        }
-    }
-}
 
 /**
  * @brief Main initalize for piece
@@ -161,42 +94,10 @@ void piece_get_info(struct Piece *piece) {
     *piece = self;
 }
 
-/**
- * @brief  The name speaks for itself.
- * 
- * @param piece_index 
- * @param colour_piece 
- * @param value_piece 
- * @param inital_position 
- */
-static void highlight_selected_piece(int piece_index, int colour_piece, int value_piece, vec2 inital_position){
-        glUniform1f(glGetUniformLocation(self.shader_vertex.handle, "square_type"), 
-                ( fen_inital_data[piece_index][0] == inital_position[0] && fen_inital_data[piece_index][1] == inital_position[1]) && fen_dynamic_data[piece_index][2] == colour_piece && fen_dynamic_data[piece_index][3] == value_piece ? 1 : 0);
-}
+void bind_piece(vec2 inital_position, vec2 dynamic_position, vec2 piece);
+void update_piece_state_on_mouse_down(int piece_index, struct Board* board);
+void update_piece_state_on_mouse_up();
 
-/**
- * @brief The name speaks for itself
- * 
- * @param board 
- * @param piece_index 
- * @param isHolded 
- */
-
-static void translate_selected_piece(struct Board board, int piece_index, int selected_piece_index , bool isHolded){
-        if (isHolded && window_get().mouse.buttons[GLFW_MOUSE_BUTTON_LEFT].down &&
-            !is_equality_data(board.buffer_position_data[(int)board.cy][(int)board.cx], 
-            board.buffer_position_data[(int)fen_dynamic_data[piece_index][0]][(int)fen_dynamic_data[piece_index][1]])
-            ) {
-                /*TODO: A more proper handle these pawn, king, ...  */
-            fen_dynamic_data[selected_piece_index][0] = board.cy;
-            fen_dynamic_data[selected_piece_index][1] = board.cx;
-        }
-
-}
-static bool init = true;
-static int piece_saved = ~1;
-static bool holded = false;
-static bool mouse_pressed = false;
 /**
  * @brief Main render for piece.
  * 
@@ -207,32 +108,20 @@ void piece_render(struct Piece self) {
     shader_bind(self.shader_vertex);
     if (init) {
         init = false;
-        load_fen(FEN);
+        load_fen_data(FEN);
     }
     board_get_info(&board);
     for (int i = 0; i < 32; i++) {
-        if (window_get().mouse.buttons[GLFW_MOUSE_BUTTON_LEFT].down && !mouse_pressed &&
-            is_equality_data(board.buffer_position_data[(int)board.cy][(int)board.cx],
-            board.buffer_position_data[(int)fen_dynamic_data[i][0]][(int)fen_dynamic_data[i][1]])
-            ) {
-            printf("[INFO] - %s \n", parser_piece(fen_dynamic_data[i][2], fen_dynamic_data[i][3]));
-            holded = true;
-            piece_saved = i;
-            mouse_pressed = true;
-        }  else if (window_get().mouse.buttons[GLFW_MOUSE_BUTTON_LEFT].down && !mouse_pressed &&
-            !is_equality_data(board.buffer_position_data[(int)board.cy][(int)board.cx],
-            board.buffer_position_data[(int)fen_dynamic_data[i][0]][(int)fen_dynamic_data[i][1]])
-            ) {
-            piece_saved = ~1;
+        update_piece_state_on_mouse_down(i, &board);
+        if (self_state.piece_saved != -1) {
+            translate_selected_piece(board, i, self_state.piece_saved, self_state.holded);
+            highlight_selected_piece(i, fen_dynamic_data[self_state.piece_saved][2],
+                                      fen_dynamic_data[self_state.piece_saved][3], 
+                                      (vec2){fen_inital_data[self_state.piece_saved][0], fen_inital_data[self_state.piece_saved][1]});
         }
-        if (!window_get().mouse.buttons[GLFW_MOUSE_BUTTON_LEFT].down) {
-            holded = false;
-            mouse_pressed = false;
-        }
-
-        translate_selected_piece(board, i, piece_saved , holded);
-        highlight_selected_piece(i, fen_dynamic_data[piece_saved][2], fen_dynamic_data[piece_saved][3], (vec2){fen_inital_data[piece_saved][0],fen_inital_data[piece_saved][1]});
-        bind_piece((vec2){fen_inital_data[i][0], fen_inital_data[i][1]}, (vec2){fen_dynamic_data[i][0], fen_dynamic_data[i][1]}, (vec2){fen_dynamic_data[i][2], fen_dynamic_data[i][3]});
+        bind_piece((vec2){fen_inital_data[i][0], fen_inital_data[i][1]}, (vec2){fen_dynamic_data[i][0], fen_dynamic_data[i][1]},
+                   (vec2){fen_dynamic_data[i][2], fen_dynamic_data[i][3]});
+        update_piece_state_on_mouse_up();
     }
 }
 
@@ -252,4 +141,53 @@ void piece_destroy(struct Piece self) {
             vbo_destroy(self.buffer_vertex[i][j]);
         }
     };
+}
+
+
+
+/**
+ * @brief Come to the end ^ Released -> Reset everthing!
+ * 
+ */
+void update_piece_state_on_mouse_up(){
+        if (!window_get().mouse.buttons[GLFW_MOUSE_BUTTON_LEFT].down) {
+        self_state.holded = false;
+        self_state.mouse_pressed = false;
+    }
+}
+
+/**
+ * @brief Pressed ^ corresponding to the piece position -> saved all the states, otherwise unsaved the piece
+ * 
+ * @param piece_index 
+ * @param board 
+ */
+
+void update_piece_state_on_mouse_down(int piece_index, struct Board* board){
+        if (window_get().mouse.buttons[GLFW_MOUSE_BUTTON_LEFT].down && !self_state.mouse_pressed &&
+        is_equality_data(board->buffer_position_data[(int)board->cy][(int)board->cx],
+                         board->buffer_position_data[(int)fen_dynamic_data[piece_index][0]][(int)fen_dynamic_data[piece_index][1]])) {
+        self_state.holded = true;
+        self_state.piece_saved = piece_index;
+        self_state.mouse_pressed = true;
+    } else if (window_get().mouse.buttons[GLFW_MOUSE_BUTTON_LEFT].down && !self_state.mouse_pressed &&
+               !is_equality_data(board->buffer_position_data[(int)board->cy][(int)board->cx],
+                                 board->buffer_position_data[(int)fen_dynamic_data[piece_index][0]][(int)fen_dynamic_data[piece_index][1]])) {
+        self_state.piece_saved = -1;
+    }
+}
+
+/**
+ * @brief A better way to handle OpenGL:)
+ * 
+ * @param inital_position 
+ * @param dynamic_position 
+ * @param piece 
+ */
+
+void bind_piece(vec2 inital_position, vec2 dynamic_position, vec2 piece){
+    vao_bind(self.array_vertex[(int)dynamic_position[0]][(int)dynamic_position[1]]);
+    texture_bind(self.texture_vertex[(int)piece[0]][(int)piece[1]]);
+    vbo_bind(self.index_vertex);
+    glDrawElements(GL_TRIANGLES, sizeof(self.index_data) / sizeof(unsigned int), GL_UNSIGNED_INT, 0);
 }

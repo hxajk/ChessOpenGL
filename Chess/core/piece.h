@@ -3,6 +3,10 @@
 extern "C" {
 #endif
 
+#ifndef PIECE_H
+#define PIECE_H
+#include <Chess/core/module.h>
+
 #include <Chess/gfx/vao.h>
 #include <Chess/gfx/vbo.h>
 #include <Chess/gfx/shader.h>
@@ -12,8 +16,12 @@ extern "C" {
 #include <Chess/util/data.h>
 #include <cglm/cglm.h>
 
-#ifndef PIECE_H
-#define PIECE_H
+struct PieceState {
+    bool holded;
+    bool mouse_pressed;
+    int piece_saved;
+    int selected_piece_index;
+};
 
 struct Piece {
 
@@ -31,11 +39,8 @@ struct Piece {
 };
 
 struct Piece piece_init();
-
 void piece_get_info(struct Piece* piece);
-
 void piece_render(struct Piece self);
-
 void piece_destroy(struct Piece self);
 
 #endif
